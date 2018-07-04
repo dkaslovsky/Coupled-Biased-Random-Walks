@@ -3,8 +3,42 @@ from __future__ import division
 from collections import Counter
 from itertools import combinations
 
-from future.utils import viewitems, viewkeys  # python2/3 compatibility
+from future.utils import viewitems  # instead of iteritems()/items() for python2/3 compatibility
 from scipy.sparse import csr_matrix
+
+
+class FixedValueDict(dict):
+
+    def __setitem__(self, key, value):
+        if dict.has_key(self, key):
+            raise KeyError('cannot overwrite key {}'.format(key))
+        dict.__setitem__(self, key, value)
+
+
+class IncrementingValueDict(object):
+
+    def __init__(self):
+        self._next_val = 0
+        self._d = FixedValueDict()
+
+    def insert(self, key):
+        try:
+            self._d[key] = self._next_val
+        except KeyError:
+            return
+        self._next_val += 1
+
+    def get(self, key, default=None):
+        return self._d.get(key, default)
+
+    def __getitem__(self, key):
+        return self._d.__getitem__(key)
+
+    def __len__(self):
+        return self._d.__len__()
+
+    def __repr__(self):
+        return self._d.__repr__()
 
 
 class ConditionalProbability(object):
@@ -12,10 +46,8 @@ class ConditionalProbability(object):
     def __init__(self):
         self._counts = Counter()
         self._joint_counts = Counter()
-        self._n_observations = 0
-
+        self._symb_to_pos = IncrementingValueDict()
         self._prob_matrix = None
-        self._symb_to_pos = None
 
     @property
     def prob_matrix(self):
@@ -32,22 +64,24 @@ class ConditionalProbability(object):
             self._count_observation(observation)
 
     def compute_prob(self):
-        if self._n_observations == 0:
+        n_symb = len(self._symb_to_pos)
+        if n_symb == 0:
             raise ValueError('no observations provided')
 
-        self._symb_to_pos = {symbol: i for i, symbol in enumerate(viewkeys(self._counts))}
-        n_symb = len(self._symb_to_pos)
-
+        prob = []
         row_idx = []
         col_idx = []
-        prob = []
         for (symbol1, symbol2), joint_count in viewitems(self._joint_counts):
-            row_idx.append(self._symb_to_pos[symbol1])
-            col_idx.append(self._symb_to_pos[symbol2])
+
+            symb1_idx = self._symb_to_pos[symbol1]
+            symb2_idx = self._symb_to_pos[symbol2]
+
+            row_idx.append(symb1_idx)
+            col_idx.append(symb2_idx)
             prob.append(joint_count / self._counts[symbol2])
 
-            row_idx.append(self._symb_to_pos[symbol2])
-            col_idx.append(self._symb_to_pos[symbol1])
+            row_idx.append(symb2_idx)
+            col_idx.append(symb1_idx)
             prob.append(joint_count / self._counts[symbol1])
 
         self._prob_matrix = csr_matrix((prob, (row_idx, col_idx)), shape=(n_symb, n_symb))
@@ -65,7 +99,7 @@ class ConditionalProbability(object):
         obs = set(observation)
         self._update_counts(obs)
         self._update_joint_counts(obs)
-        self._n_observations += 1
+        self._update_symb_to_pos(obs)
 
     def _update_counts(self, obs):
         """
@@ -81,3 +115,7 @@ class ConditionalProbability(object):
         """
         pairs = combinations(sorted(obs), 2)
         self._joint_counts.update(pairs)
+
+    def _update_symb_to_pos(self, observation):
+        for symbol in observation:
+            self._symb_to_pos.insert(symbol)
