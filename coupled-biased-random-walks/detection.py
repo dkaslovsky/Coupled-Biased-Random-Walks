@@ -1,0 +1,89 @@
+from __future__ import division
+
+# instead of iteritems()/items() for python2/3 compatibility
+from future.utils import viewitems
+from scipy.sparse import csr_matrix, diags
+
+from count import ObservationCounter
+from data import generate_df
+
+try:
+    # python 2
+    import itertools.izip as zip
+except ImportError:
+    # python 3
+    pass
+
+
+class CBRW(object):
+
+    def __init__(self):
+        self.counter = ObservationCounter()
+        self._prob_matrix = None
+        self._bias_vec = None
+
+    def add_observations(self, observation_iterable):
+        self.counter.update(observation_iterable)
+
+    def compute_prob_matrix(self):
+        n_symb = len(self.counter.index)
+        if n_symb == 0:
+            raise ValueError('no observations provided')
+
+        idx = []
+        prob = []
+        for (symbol1, symbol2), joint_count in viewitems(self.counter.joint_counts):
+
+            # get index for symbols
+            symb1_idx = self.counter.index[symbol1]
+            symb2_idx = self.counter.index[symbol2]
+
+            # get individual counts for symbols
+            symb1_count = self.counter.get_count(symbol1)
+            symb2_count = self.counter.get_count(symbol2)
+
+            # p(symb1 | symb2)
+            idx.append((symb1_idx, symb2_idx))
+            prob.append(joint_count / symb2_count)
+            # p(symb2 | symb1)
+            idx.append((symb2_idx, symb1_idx))
+            prob.append(joint_count / symb1_count)
+
+        self._prob_matrix = csr_matrix((prob, zip(*idx)), shape=(n_symb, n_symb))
+
+    # TODO: get n_obs from counter
+    # TODO: more efficient sorting and selecting
+    def compute_bias_vec(self):
+        bias_dict = {}
+        for feature_name, value_counts in viewitems(self.counter.counts):
+            mode = self._get_mode(value_counts)
+            n_obs = 10
+            bias_dict.update({feature_val: self._compute_bias(count, mode, n_obs)
+                              for feature_val, count in viewitems(value_counts)})
+
+        sorted_bias_dict = sorted(viewitems(bias_dict), key=lambda x: self.counter.index[x[0]])
+        self._bias_vec = diags(zip(*sorted_bias_dict)[1], 0)
+
+    @staticmethod
+    def _compute_bias(count, mode, n_obs):
+        dev = 1 - count / mode
+        base = 1 - mode / n_obs
+        return 0.5 * (dev + base)
+
+    @staticmethod
+    def _get_mode(counter):
+        return counter.most_common(1)[0][1]
+
+
+
+if __name__ == '__main__':
+
+    N_OBS = 10
+    data = generate_df(N_OBS)
+    data = data.to_dict(orient='records')
+
+    cbrw = CBRW()
+    cbrw.add_observations(data)
+
+    cbrw.compute_prob_matrix()
+    cbrw.compute_bias_vec()
