@@ -20,7 +20,7 @@ class CBRW(object):
     def __init__(self):
         self.counter = ObservationCounter()
         self._prob_matrix = None
-        self._bias_vec = None
+        self._bias_dict = None
 
     def add_observations(self, observation_iterable):
         self.counter.update(observation_iterable)
@@ -29,6 +29,8 @@ class CBRW(object):
         n_symb = len(self.counter.index)
         if n_symb == 0:
             raise ValueError('no observations provided')
+
+        self._compute_biases()
 
         idx = []
         prob = []
@@ -44,30 +46,25 @@ class CBRW(object):
 
             # p(symb1 | symb2)
             idx.append((symb1_idx, symb2_idx))
-            prob.append(joint_count / symb2_count)
+            prob.append(self._bias_dict[symbol2] * joint_count / symb2_count)
             # p(symb2 | symb1)
             idx.append((symb2_idx, symb1_idx))
-            prob.append(joint_count / symb1_count)
+            prob.append(self._bias_dict[symbol1] * joint_count / symb1_count)
 
         self._prob_matrix = csr_matrix((prob, zip(*idx)), shape=(n_symb, n_symb))
 
-    # TODO: get n_obs from counter
-    # TODO: more efficient sorting and selecting
-    def compute_bias_vec(self):
+    def _compute_biases(self):
         bias_dict = {}
         for feature_name, value_counts in viewitems(self.counter.counts):
             mode = self._get_mode(value_counts)
-            n_obs = 10
-            bias_dict.update({feature_val: self._compute_bias(count, mode, n_obs)
+            base = 1 - mode / self.counter.n_obs
+            bias_dict.update({feature_val: self._compute_bias(count, mode, base)
                               for feature_val, count in viewitems(value_counts)})
-
-        sorted_bias_dict = sorted(viewitems(bias_dict), key=lambda x: self.counter.index[x[0]])
-        self._bias_vec = diags(zip(*sorted_bias_dict)[1], 0)
+        self._bias_dict = bias_dict
 
     @staticmethod
-    def _compute_bias(count, mode, n_obs):
+    def _compute_bias(count, mode, base):
         dev = 1 - count / mode
-        base = 1 - mode / n_obs
         return 0.5 * (dev + base)
 
     @staticmethod
@@ -84,6 +81,4 @@ if __name__ == '__main__':
 
     cbrw = CBRW()
     cbrw.add_observations(data)
-
     cbrw.compute_prob_matrix()
-    cbrw.compute_bias_vec()
