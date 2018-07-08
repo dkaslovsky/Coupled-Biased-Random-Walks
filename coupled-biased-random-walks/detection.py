@@ -2,10 +2,9 @@ from __future__ import division
 
 # instead of iteritems()/items() for python2/3 compatibility
 from future.utils import viewitems
-from scipy.sparse import csr_matrix, diags
+from scipy.sparse import csr_matrix
 
 from count import ObservationCounter
-from data import generate_df
 
 try:
     # python 2
@@ -25,13 +24,14 @@ class CBRW(object):
     def add_observations(self, observation_iterable):
         self.counter.update(observation_iterable)
 
-    def compute_prob_matrix(self):
-        n_symb = len(self.counter.index)
-        if n_symb == 0:
+    def fit(self):
+        if self.counter.n_obs == 0:
             raise ValueError('no observations provided')
-
         self._compute_biases()
+        self._compute_prob_matrix()
+        return self
 
+    def _compute_prob_matrix(self):
         idx = []
         prob = []
         for (symbol1, symbol2), joint_count in viewitems(self.counter.joint_counts):
@@ -51,6 +51,7 @@ class CBRW(object):
             idx.append((symb2_idx, symb1_idx))
             prob.append(self._bias_dict[symbol1] * joint_count / symb1_count)
 
+        n_symb = len(self.counter.index)
         self._prob_matrix = csr_matrix((prob, zip(*idx)), shape=(n_symb, n_symb))
 
     def _compute_biases(self):
@@ -70,15 +71,3 @@ class CBRW(object):
     @staticmethod
     def _get_mode(counter):
         return counter.most_common(1)[0][1]
-
-
-
-if __name__ == '__main__':
-
-    N_OBS = 10
-    data = generate_df(N_OBS)
-    data = data.to_dict(orient='records')
-
-    cbrw = CBRW()
-    cbrw.add_observations(data)
-    cbrw.compute_prob_matrix()
