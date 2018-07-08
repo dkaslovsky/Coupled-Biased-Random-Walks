@@ -12,7 +12,7 @@ class FixedValueDict(dict):
         dict.__setitem__(self, key, value)
 
 
-class IncrementingValueDict(object):
+class IncrementingDict(object):
     def __init__(self):
         self._next_val = 0
         self._d = FixedValueDict()
@@ -39,9 +39,10 @@ class IncrementingValueDict(object):
 
 class ObservationCounter(object):
     def __init__(self):
+        self.n_obs = 0
         self._counts = defaultdict(Counter)
         self._joint_counts = Counter()
-        self._index = IncrementingValueDict()
+        self._index = IncrementingDict()
 
     @property
     def counts(self):
@@ -56,7 +57,15 @@ class ObservationCounter(object):
         return self._index
 
     def update(self, observation_iterable):
+        """
+
+        :param observation_iterable: list of dicts
+        """
+        if isinstance(observation_iterable, dict):
+            observation_iterable = [observation_iterable]
         for observation in observation_iterable:
+            if not isinstance(observation, dict):
+                raise TypeError('observation must be a dict')
             self._update(observation)
 
     def _update(self, observation):
@@ -64,6 +73,10 @@ class ObservationCounter(object):
         self._update_counts(obs)
         self._update_joint_counts(obs)
         self._update_index(obs)
+        # in the future we might need to track n_obs per feature
+        # and store it in a dict; this might require skipping
+        # features with value nan
+        self.n_obs += 1
 
     def _update_counts(self, observation):
         for item in observation:
