@@ -10,32 +10,32 @@ from count import ObservationCounter
 class CBRW(object):
 
     def __init__(self):
-        self.counter = ObservationCounter()
-        self._prob_matrix = None
+        self._counter = ObservationCounter()
+        self._trans_matrix = None
         self._bias_dict = None
 
     def add_observations(self, observation_iterable):
-        self.counter.update(observation_iterable)
+        self._counter.update(observation_iterable)
 
     def fit(self):
-        if self.counter.n_obs == 0:
+        if self._counter.n_obs == 0:
             raise ValueError('no observations provided')
         self._compute_biases()
-        self._compute_prob_matrix()
+        self._compute_trans_matrix()
         return self
 
-    def _compute_prob_matrix(self):
+    def _compute_trans_matrix(self):
         idx = []
         prob = []
-        for (symbol1, symbol2), joint_count in iteritems(self.counter.joint_counts):
+        for (symbol1, symbol2), joint_count in iteritems(self._counter.joint_counts):
 
             # get index for symbols
-            symb1_idx = self.counter.index[symbol1]
-            symb2_idx = self.counter.index[symbol2]
+            symb1_idx = self._counter.index[symbol1]
+            symb2_idx = self._counter.index[symbol2]
 
             # get individual counts for symbols
-            symb1_count = self.counter.get_count(symbol1)
-            symb2_count = self.counter.get_count(symbol2)
+            symb1_count = self._counter.get_count(symbol1)
+            symb2_count = self._counter.get_count(symbol2)
 
             # p(symb1 | symb2)
             idx.append((symb1_idx, symb2_idx))
@@ -44,15 +44,15 @@ class CBRW(object):
             idx.append((symb2_idx, symb1_idx))
             prob.append(self._bias_dict[symbol1] * joint_count / symb1_count)
 
-        n_symb = len(self.counter.index)
-        prob_matrix = csr_matrix((prob, zip(*idx)), shape=(n_symb, n_symb))
-        self._prob_matrix = self._row_normalize_csr_matrix(prob_matrix)
+        n_symb = len(self._counter.index)
+        trans_matrix = csr_matrix((prob, zip(*idx)), shape=(n_symb, n_symb))
+        self._trans_matrix = self._row_normalize_csr_matrix(trans_matrix)
 
     def _compute_biases(self):
         bias_dict = {}
-        for feature_name, value_counts in iteritems(self.counter.counts):
+        for feature_name, value_counts in iteritems(self._counter.counts):
             mode = self._get_mode(value_counts)
-            base = 1 - mode / self.counter.n_obs
+            base = 1 - mode / self._counter.n_obs
             bias_dict.update({feature_val: self._compute_bias(count, mode, base)
                               for feature_val, count in iteritems(value_counts)})
         self._bias_dict = bias_dict
