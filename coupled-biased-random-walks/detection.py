@@ -45,7 +45,8 @@ class CBRW(object):
             prob.append(self._bias_dict[symbol1] * joint_count / symb1_count)
 
         n_symb = len(self.counter.index)
-        self._prob_matrix = csr_matrix((prob, zip(*idx)), shape=(n_symb, n_symb))
+        prob_matrix = csr_matrix((prob, zip(*idx)), shape=(n_symb, n_symb))
+        self._prob_matrix = self._row_normalize_csr_matrix(prob_matrix)
 
     def _compute_biases(self):
         bias_dict = {}
@@ -64,3 +65,17 @@ class CBRW(object):
     @staticmethod
     def _get_mode(counter):
         return counter.most_common(1)[0][1]
+
+    @staticmethod
+    def _row_normalize_csr_matrix(matrix):
+        """
+        Row normalize a csr matrix without mutating the input
+        :param matrix:
+        """
+        # get row index for every nonzero element in matrix
+        row_idx, col_idx = matrix.nonzero()
+        # compute runraveled row sums
+        row_sums = matrix.sum(axis=1).A1
+        # divide data by (broadcasted) row sums
+        normalized = matrix.data / row_sums[row_idx]
+        return csr_matrix((normalized, (row_idx, col_idx)), shape=matrix.shape)
