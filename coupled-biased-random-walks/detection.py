@@ -1,17 +1,10 @@
 from __future__ import division
 
-# instead of iteritems()/items() for python2/3 compatibility
-from future.utils import viewitems
 from scipy.sparse import csr_matrix
+from six import iteritems
+from six.moves import zip
 
 from count import ObservationCounter
-
-try:
-    # python 2
-    import itertools.izip as zip
-except ImportError:
-    # python 3
-    pass
 
 
 class CBRW(object):
@@ -34,7 +27,7 @@ class CBRW(object):
     def _compute_prob_matrix(self):
         idx = []
         prob = []
-        for (symbol1, symbol2), joint_count in viewitems(self.counter.joint_counts):
+        for (symbol1, symbol2), joint_count in iteritems(self.counter.joint_counts):
 
             # get index for symbols
             symb1_idx = self.counter.index[symbol1]
@@ -56,11 +49,11 @@ class CBRW(object):
 
     def _compute_biases(self):
         bias_dict = {}
-        for feature_name, value_counts in viewitems(self.counter.counts):
+        for feature_name, value_counts in iteritems(self.counter.counts):
             mode = self._get_mode(value_counts)
             base = 1 - mode / self.counter.n_obs
             bias_dict.update({feature_val: self._compute_bias(count, mode, base)
-                              for feature_val, count in viewitems(value_counts)})
+                              for feature_val, count in iteritems(value_counts)})
         self._bias_dict = bias_dict
 
     @staticmethod

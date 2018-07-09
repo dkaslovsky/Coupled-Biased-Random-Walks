@@ -1,8 +1,7 @@
 from collections import Counter, defaultdict
-from itertools import combinations
+from itertools import combinations, tee
 
-# instead of iteritems()/items() for python2/3 compatibility
-from future.utils import viewitems
+from six import iteritems
 
 
 class FixedValueDict(dict):
@@ -69,10 +68,10 @@ class ObservationCounter(object):
             self._update(observation)
 
     def _update(self, observation):
-        obs = viewitems(observation)
-        self._update_counts(obs)
-        self._update_joint_counts(obs)
-        self._update_index(obs)
+        obs1, obs2, obs3 = tee(iteritems(observation), 3)
+        self._update_counts(obs1)
+        self._update_joint_counts(obs2)
+        self._update_index(obs3)
         # in the future we might need to track n_obs per feature
         # and store it in a dict; this might require skipping
         # features with value nan

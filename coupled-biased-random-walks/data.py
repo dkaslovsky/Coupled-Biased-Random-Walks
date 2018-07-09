@@ -2,8 +2,7 @@ from string import ascii_uppercase
 
 import numpy as np
 import pandas as pd
-# instead of iteritems()/items() for python2/3 compatibility
-from future.utils import viewitems
+from six import iteritems
 
 np.random.seed(0)
 
@@ -24,5 +23,5 @@ def generate_observations(n_obs, vocab_len=26):
 
 def generate_df(n_obs):
     data = {feature_name: np.random.choice(values, n_obs, replace=True)
-            for feature_name, values in viewitems(FEATURES)}
+            for feature_name, values in iteritems(FEATURES)}
     return pd.DataFrame(data)
