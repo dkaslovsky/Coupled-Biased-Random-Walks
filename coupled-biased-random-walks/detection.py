@@ -19,6 +19,7 @@ class CBRW(object):
     def __init__(self, rw_params=None):
         self.rw_params = rw_params if rw_params else self.preset_rw_params
         self._counter = ObservationCounter()
+        self._node_scores = {}
         self._trans_matrix = None
         self._bias_dict = None
         self._trans_prob = None
@@ -31,8 +32,32 @@ class CBRW(object):
             raise ValueError('no observations provided')
         self._bias_dict = self._compute_biases()
         self._trans_matrix = self._compute_trans_matrix()
-        self._trans_prob = self._random_walk()
+        self._trans_prob = self._random_walk().ravel()
         return self
+
+    def score(self, observation_iterable):
+        if isinstance(observation_iterable, dict):
+            observation_iterable = [observation_iterable]
+        return np.array([self._score(obs) for obs in observation_iterable])
+
+    def _score(self, observation):
+        score = 0
+        for obs in iteritems(observation):
+            score += self._get_node_score(obs)
+        return score
+
+    def _get_node_score(self, node_name):
+        try:
+            return self._node_scores[node_name]
+        except KeyError:
+            pass
+
+        node_idx = self._counter.index.get(node_name)
+        if node_idx is None:
+            raise ValueError('unknown feature value: {}'.format(node_name))
+        node_score = self._trans_prob[node_idx]
+        self._node_scores[node_name] = node_score
+        return node_score
 
     def _compute_trans_matrix(self):
         idx = []
