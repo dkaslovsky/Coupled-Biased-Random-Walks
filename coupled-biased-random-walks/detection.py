@@ -10,19 +10,18 @@ from count import ObservationCounter
 
 class CBRW(object):
 
-    preset_rw_params = {
+    PRESET_RW_PARAMS = {
         'alpha':    0.95,
         'err_tol':  1e-3,
         'max_iter': 100
     }
 
     def __init__(self, rw_params=None):
-        self.rw_params = rw_params if rw_params else self.preset_rw_params
+        self.rw_params = rw_params if rw_params else self.PRESET_RW_PARAMS
         self._counter = ObservationCounter()
-        self._node_scores = {}
         self._trans_matrix = None
         self._bias_dict = None
-        self._trans_prob = None
+        self._stationary_prob = None
 
     def add_observations(self, observation_iterable):
         self._counter.update(observation_iterable)
@@ -32,7 +31,7 @@ class CBRW(object):
             raise ValueError('no observations provided')
         self._bias_dict = self._compute_biases()
         self._trans_matrix = self._compute_trans_matrix()
-        self._trans_prob = self._random_walk().ravel()
+        self._stationary_prob = self._random_walk().ravel()
         return self
 
     def score(self, observation_iterable):
@@ -41,23 +40,14 @@ class CBRW(object):
         return np.array([self._score(obs) for obs in observation_iterable])
 
     def _score(self, observation):
-        score = 0
-        for obs in iteritems(observation):
-            score += self._get_node_score(obs)
-        return score
+        return sum(self._get_node_score(item) for item in iteritems(observation))
 
     def _get_node_score(self, node_name):
         try:
-            return self._node_scores[node_name]
+            node_idx = self._counter.index[node_name]
         except KeyError:
-            pass
-
-        node_idx = self._counter.index.get(node_name)
-        if node_idx is None:
             raise ValueError('unknown feature value: {}'.format(node_name))
-        node_score = self._trans_prob[node_idx]
-        self._node_scores[node_name] = node_score
-        return node_score
+        return self._stationary_prob[node_idx]
 
     def _compute_trans_matrix(self):
         idx = []
@@ -119,8 +109,8 @@ class CBRW(object):
         return 0.5 * (dev + base)
 
     @staticmethod
-    def _get_mode(counter):
-        return counter.most_common(1)[0][1]
+    def _get_mode(counter_obj):
+        return counter_obj.most_common(1)[0][1]
 
     @staticmethod
     def _row_normalize_csr_matrix(matrix):
