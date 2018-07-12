@@ -63,8 +63,6 @@ class ObservationCounter(object):
         if isinstance(observation_iterable, dict):
             observation_iterable = [observation_iterable]
         for observation in observation_iterable:
-            if not isinstance(observation, dict):
-                raise TypeError('observation must be a dict')
             self._update(observation)
 
     def _update(self, observation):
