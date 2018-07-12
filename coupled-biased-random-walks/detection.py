@@ -1,5 +1,7 @@
 from __future__ import division
 
+from collections import defaultdict
+
 import numpy as np
 from scipy.sparse import csr_matrix
 from six import iteritems
@@ -22,6 +24,7 @@ class CBRW(object):
         self._transition_matrix = None
         self._bias_dict = None
         self._stationary_prob = None
+        self._feature_weights = None
 
     def add_observations(self, observation_iterable):
         self._counter.update(observation_iterable)
@@ -31,7 +34,7 @@ class CBRW(object):
             raise ValueError('no observations provided')
         self._bias_dict = self._compute_biases()
         self._transition_matrix = self._compute_transition_matrix()
-        self._stationary_prob = self._compute_stationary_prob()
+        self._stationary_prob, self._feature_weights = self._compute_stationary_prob()
         return self
 
     def score(self, observation_iterable):
@@ -81,10 +84,16 @@ class CBRW(object):
                               for feature_val, count in iteritems(value_counts)})
         return bias_dict
 
+    # TODO: rename, normalize, use self._counter.counts to get nested structure?
     def _compute_stationary_prob(self):
-        stationary_prob = self._random_walk().ravel()
-        return {feature_val: stationary_prob[idx]
-                for feature_val, idx in iteritems(self._counter.index)}
+        pi = self._random_walk().ravel()
+        stationary_prob = {}
+        feature_weights = defaultdict(int)
+        for feature_val, idx in iteritems(self._counter.index):
+            prob = pi[idx]
+            stationary_prob[feature_val] = prob
+            feature_weights[self._counter._get_feature_name(feature_val)] += prob
+        return stationary_prob, dict(feature_weights)
 
     def _random_walk(self):
         # get random walk parameters
