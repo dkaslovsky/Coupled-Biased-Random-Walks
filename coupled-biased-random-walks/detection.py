@@ -19,7 +19,7 @@ class CBRW(object):
     def __init__(self, rw_params=None):
         self.rw_params = rw_params if rw_params else self.PRESET_RW_PARAMS
         self._counter = ObservationCounter()
-        self._trans_matrix = None
+        self._transition_matrix = None
         self._bias_dict = None
         self._stationary_prob = None
 
@@ -30,8 +30,8 @@ class CBRW(object):
         if self._counter.n_obs == 0:
             raise ValueError('no observations provided')
         self._bias_dict = self._compute_biases()
-        self._trans_matrix = self._compute_trans_matrix()
-        self._stationary_prob = self._random_walk().ravel()
+        self._transition_matrix = self._compute_transition_matrix()
+        self._stationary_prob = self._compute_stationary_prob()
         return self
 
     def score(self, observation_iterable):
@@ -44,12 +44,11 @@ class CBRW(object):
 
     def _get_node_score(self, node_name):
         try:
-            node_idx = self._counter.index[node_name]
+            return self._stationary_prob[node_name]
         except KeyError:
             raise ValueError('unknown feature value: {}'.format(node_name))
-        return self._stationary_prob[node_idx]
 
-    def _compute_trans_matrix(self):
+    def _compute_transition_matrix(self):
         idx = []
         prob = []
         for (symbol1, symbol2), joint_count in iteritems(self._counter.joint_counts):
@@ -82,6 +81,11 @@ class CBRW(object):
                               for feature_val, count in iteritems(value_counts)})
         return bias_dict
 
+    def _compute_stationary_prob(self):
+        stationary_prob = self._random_walk().ravel()
+        return {feature_val: stationary_prob[idx]
+                for feature_val, idx in iteritems(self._counter.index)}
+
     def _random_walk(self):
         # get random walk parameters
         alpha = self.rw_params['alpha']
@@ -89,14 +93,14 @@ class CBRW(object):
         max_iter = self.rw_params['max_iter']
 
         # shape of transition matrix will be length of vectors
-        n = self._trans_matrix.shape[0]
+        n = self._transition_matrix.shape[0]
         # damping vector
         damping_vec = ((1 - alpha) / n) * np.ones((n, 1))
         # stationary vector initialization
         pi = (1 / n) * np.ones((n, 1))
 
         for _ in range(max_iter):
-            pi_next = damping_vec + alpha * self._trans_matrix.T.dot(pi)
+            pi_next = damping_vec + alpha * self._transition_matrix.T.dot(pi)
             err = np.linalg.norm(pi - pi_next, ord=np.inf)
             if err <= err_tol:
                 return pi_next
