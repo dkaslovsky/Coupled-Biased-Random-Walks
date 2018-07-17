@@ -1,0 +1,13 @@
+Gender,Education,Marriage,Income,Cheat?
+male,master,divorced,low,yes
+female,master,married,medium,no
+male,master,single,high,no
+male,bachelor,married,medium,no
+female,master,divorced,high,no
+male,PhD,married,high,no
+male,master,single,high,no
+female,PhD,single,medium,no
+male,PhD,married,medium,no
+male,bachelor,single,low,no
+female,PhD,married,medium,no
+male,master,single,low,no
