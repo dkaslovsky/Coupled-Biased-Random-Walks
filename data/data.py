@@ -1,6 +1,7 @@
 from csv import DictReader
-from six import iteritems
 from functools import partial
+
+from six import iteritems
 
 
 def load_from_csv(path_to_csv, exclude_cols=None):
