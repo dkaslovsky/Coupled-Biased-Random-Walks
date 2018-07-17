@@ -11,6 +11,22 @@ except ImportError:
     from collections.abc import Mapping
 
 
+def get_feature_name(feature_tuple):
+    """
+    Helper function to return feature name from tuple representation
+    :param feature_tuple: tuple of the form (feature_name, feature_value)
+    """
+    return feature_tuple[0]
+
+
+def get_mode(counter):
+    """
+    Helper function to return the most common element from a counter
+    :param counter: collections.Counter instance
+    """
+    return counter.most_common(1)[0][1]
+
+
 class IncrementingDict(Mapping):
 
     """
@@ -82,7 +98,7 @@ class ObservationCounter(object):
 
     def _update_counts(self, observation):
         for item in observation:
-            feature_name = self._get_feature_name(item)
+            feature_name = get_feature_name(item)
             self._counts[feature_name].update([item])
 
     def _update_joint_counts(self, observation):
@@ -93,12 +109,8 @@ class ObservationCounter(object):
         for item in observation:
             self._index.insert(item)
 
-    @staticmethod
-    def _get_feature_name(feature_tuple):
-        return feature_tuple[0]
-
     def get_count(self, item):
-        feature_name = self._get_feature_name(item)
+        feature_name = get_feature_name(item)
         try:
             return self._counts.get(feature_name)[item]
         except TypeError:
