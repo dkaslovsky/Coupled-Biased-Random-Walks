@@ -30,30 +30,29 @@ class CBRW(object):
     def fit(self):
         if self._counter.n_obs == 0:
             raise ValueError('no observations provided')
+
+        # execute biased random walk
         bias_dict = self._compute_biases()
         transition_matrix = self._compute_biased_transition_matrix(bias_dict)
-        self._fit(transition_matrix)
+        pi = self._random_walk(transition_matrix, self.rw_params).ravel()
+
+        stationary_prob = {}
+        feature_relevance = defaultdict(int)
+
+        for feature_val, idx in iteritems(self._counter.index):
+            prob = pi[idx]
+            stationary_prob[feature_val] = prob
+            feature_relevance[get_feature_name(feature_val)] += prob
+        # feature relevance scores are to be used as weights; accordingly the paper
+        # normalizes them to sum to 1, however this sum normalization should not be
+        # necessary since sum(pi) = 1 by definition
+        self._stationary_prob, self._feature_relevance = stationary_prob, dict(feature_relevance)
         return self
 
     def score(self, observation_iterable):
         if isinstance(observation_iterable, dict):
             observation_iterable = [observation_iterable]
         return np.array([self._score(obs) for obs in observation_iterable])
-
-    def _fit(self, transition_matrix):
-        pi = self._random_walk(transition_matrix, self.rw_params)
-        pi = pi.ravel()
-        stationary_prob = {}
-        feature_relevance = defaultdict(int)
-        for feature_val, idx in iteritems(self._counter.index):
-            prob = pi[idx]
-            stationary_prob[feature_val] = prob
-            feature_relevance[get_feature_name(feature_val)] += prob
-        self._stationary_prob = stationary_prob
-        # feature relevance scores are to be used as weights; accordingly the paper
-        # normalizes them to sum to 1, however this sum normalization should not be
-        # necessary since su(pi) = 1 by definition
-        self._feature_relevance = dict(feature_relevance)
 
     def _score(self, observation):
         return sum(self._get_feature_relevance(item) * self._get_node_score(item)
