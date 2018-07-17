@@ -10,7 +10,7 @@ def load_from_csv(path_to_csv, exclude_cols=None):
     if exclude_cols is not None:
         if isinstance(exclude_cols, str):
             exclude_cols = {exclude_cols}
-        filt = partial(filter_fields, set(exclude_cols))
+        filt = partial(filter_fields, fields=set(exclude_cols))
         return [filt(rec) for rec in data]
     return data
 
