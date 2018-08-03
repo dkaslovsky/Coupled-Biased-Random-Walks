@@ -30,7 +30,9 @@ def get_mode(counter):
 class IncrementingDict(Mapping):
 
     """
-    Inherit abstract base class Mapping instead of dict; note that we
+    Dict-like class for assigning an incrementing value to new keys and
+    does not allow overwriting of a key.
+    Inherits abstract base class Mapping instead of dict; note that we
     intentionally do not define a __setitem__ method
     """
 
@@ -39,6 +41,10 @@ class IncrementingDict(Mapping):
         self._next_val = 0
 
     def insert(self, key):
+        """
+        Inserts a (strictly new) key
+        :param key: any hashable object to be used as a key
+        """
         if self._d.has_key(key):
             return
         self._d[key] = self._next_val
@@ -58,6 +64,13 @@ class IncrementingDict(Mapping):
 
 
 class ObservationCounter(object):
+
+    """
+    Counts single and joint occurrences of key/value pairs in a dict with
+    the intention that an observation of categorical features is represented
+    as a dict of {feature_name: categorical_level/feature_value, ...}
+    """
+
     def __init__(self):
         self.n_obs = 0
         self._counts = defaultdict(Counter)
@@ -78,23 +91,21 @@ class ObservationCounter(object):
 
     def update(self, observation_iterable):
         """
-
+        Update counts with new observation(s)
         :param observation_iterable: list of dicts
         """
         if isinstance(observation_iterable, dict):
             observation_iterable = [observation_iterable]
         for observation in observation_iterable:
-            self._update(observation)
-
-    def _update(self, observation):
-        obs1, obs2, obs3 = tee(iteritems(observation), 3)
-        self._update_counts(obs1)
-        self._update_joint_counts(obs2)
-        self._update_index(obs3)
-        # in the future we might need to track n_obs per feature
-        # and store it in a dict; this might require skipping
-        # features with value nan
-        self.n_obs += 1
+            #self._update(observation)
+            obs1, obs2, obs3 = tee(iteritems(observation), 3)
+            self._update_counts(obs1)
+            self._update_joint_counts(obs2)
+            self._update_index(obs3)
+            # in the future we might need to track n_obs per feature
+            # and store it in a dict; this might require skipping
+            # features with value nan
+            self.n_obs += 1
 
     def _update_counts(self, observation):
         for item in observation:
