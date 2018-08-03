@@ -97,30 +97,46 @@ class ObservationCounter(object):
         if isinstance(observation_iterable, dict):
             observation_iterable = [observation_iterable]
         for observation in observation_iterable:
-            #self._update(observation)
+            # create 3 iterators
             obs1, obs2, obs3 = tee(iteritems(observation), 3)
             self._update_counts(obs1)
             self._update_joint_counts(obs2)
             self._update_index(obs3)
-            # in the future we might need to track n_obs per feature
-            # and store it in a dict; this might require skipping
-            # features with value nan
+            # In the future we might need to track n_obs per feature
+            # and store it in a dict; this might require skipping features
+            # with value nan.  For now just count each observation.
             self.n_obs += 1
 
     def _update_counts(self, observation):
+        """
+        Update single counts
+        :param observation: list of tuples of the form ('feature_name', 'feature_value')
+        """
         for item in observation:
             feature_name = get_feature_name(item)
             self._counts[feature_name].update([item])
 
     def _update_joint_counts(self, observation):
+        """
+        Update joint counts
+        :param observation: list of tuples of the form ('feature_name', 'feature_value')
+        """
         pairs = combinations(sorted(observation), 2)
         self._joint_counts.update(pairs)
 
     def _update_index(self, observation):
+        """
+        Update index mapping
+        :param observation: list of tuples of the form ('feature_name', 'feature_value')
+        """
         for item in observation:
             self._index.insert(item)
 
     def get_count(self, item):
+        """
+        Getter to safely retrieve count from interal data structure of defaultdict(Counter)
+        :param item: tuple of the form ('feature_name', 'feature_value')
+        """
         feature_name = get_feature_name(item)
         try:
             return self._counts.get(feature_name)[item]
