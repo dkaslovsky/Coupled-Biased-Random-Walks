@@ -72,9 +72,15 @@ class ObservationCounter(object):
     """
 
     def __init__(self):
+        # total number of observations counted
         self.n_obs = 0
+        # stores individual counts of features, keyed by feature name and then
+        # by (feature_name, feature_value) tuple
         self._counts = defaultdict(Counter)
+        # stores joint counts of features, keyed by (feature_tuple1, feature_tuple2)
+        # where each feature tuple takes the form (feature_name, feature_value)
         self._joint_counts = Counter()
+        # maps each feature tuple to a (unique, incrementing integer) index
         self._index = IncrementingDict()
 
     @property
