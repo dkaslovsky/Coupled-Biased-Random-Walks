@@ -6,6 +6,8 @@ from scipy.sparse import csr_matrix
 from coupled_biased_random_walks.matrix import (random_walk,
                                                 row_normalize_csr_matrix)
 
+np.random.seed(0)
+
 
 def construct_2x2_matrix(data):
     idx = [(0, 0), (0, 1), (1, 0), (1, 1)]
@@ -45,7 +47,7 @@ class TestRowNormalizeCSRMatrix(unittest.TestCase):
     """
 
     def test_row_normalize(self):
-        for _ in range(10):
+        for _ in range(3):
             data = np.random.rand(4)
             matrix = construct_2x2_matrix(data)
             matrix = row_normalize_csr_matrix(matrix)

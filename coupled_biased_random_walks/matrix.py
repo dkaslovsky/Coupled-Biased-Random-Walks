@@ -37,7 +37,7 @@ def row_normalize_csr_matrix(matrix):
     """
     # get row index for every nonzero element in matrix
     row_idx, col_idx = matrix.nonzero()
-    # compute runraveled row sums
+    # compute unraveled row sums
     row_sums = matrix.sum(axis=1).A1
     # divide data by (broadcasted) row sums
     normalized = matrix.data / row_sums[row_idx]
