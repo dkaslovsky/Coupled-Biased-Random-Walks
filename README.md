@@ -1,6 +1,9 @@
 # Coupled-Biased-Random-Walks
 Outlier detection for categorical data
 
+[![Build Status](https://travis-ci.org/dkaslovsky/Coupled-Biased-Random-Walks.svg?branch=master)](https://travis-ci.org/dkaslovsky/Coupled-Biased-Random_Walks)
+[![Coverage Status](https://coveralls.io/repos/github/dkaslovsky/Coupled-Biased-Random-Walks/badge.svg?branch=master)](https://coveralls.io/github/dkaslovsky/Coupled-Biased-Random-Walks?branch=master)
+
 ### Overview
 Lightweight Python 2/3 compatible implementation of the Coupled Biased Random Walks (CBRW) outlier detection algorithm described by Pang, Cao, and Chen in https://www.ijcai.org/Proceedings/16/Papers/272.pdf.
 
@@ -60,18 +63,4 @@ $ python example.py
 To run unit tests:
 ```
 $ python -m unittest discover -v
-```
-Test coverage can be reported using the `pytest-cov` package:
-```
-$ pip install pytest-cov
-$ py.test --cov=coupled_biased_random_walks/
-
-Name                                       Stmts   Miss  Cover
---------------------------------------------------------------
-coupled_biased_random_walks/__init__.py        0      0   100%
-coupled_biased_random_walks/count.py          65      4    94%
-coupled_biased_random_walks/detection.py      71      3    96%
-coupled_biased_random_walks/matrix.py         26      1    96%
---------------------------------------------------------------
-TOTAL                                        162      8    95%
 ```
