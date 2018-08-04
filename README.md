@@ -25,13 +25,13 @@ This data is saved as a [.CSV file](./data/CBRW_paper_example.csv) in this repos
 
 Note that we drop the "Cheat?" column when loading the data, as this is essentially the target variable indicating the anomalous activity to be detected.  The detector is instantiated as observations are added as follows:
 ```
-detector = CBRW()
-detector.add_observations(observations)
+>>> detector = CBRW()
+>>> detector.add_observations(observations)
 ```
 where `observations` is an iterable of dicts such as the one loaded from the example .CSV file.  Once all of the observations are loaded, the detector can be finalized for scoring by calling `fit()` and observations can then be scored.
 ```
-detector.fit()
-scores = detector.score(observations)
+>>> detector.fit()
+>>> scores = detector.score(observations)
 ```
 Even after fitting and scoring, more observations can be added via `add_observations` and the detector can again be fit to be used for scoring.  The advantage of this implementation is this ability to incrementally update with new observations.
 
