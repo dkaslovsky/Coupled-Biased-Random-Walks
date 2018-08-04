@@ -39,6 +39,8 @@ def row_normalize_csr_matrix(matrix):
     row_idx, col_idx = matrix.nonzero()
     # compute unraveled row sums
     row_sums = matrix.sum(axis=1).A1
+    # get matrix entries excluding all-zero rows
+    matrix_data = matrix[row_sums > 0, :].data
     # divide data by (broadcasted) row sums
-    normalized = matrix.data / row_sums[row_idx]
+    normalized = matrix_data / row_sums[row_idx]
     return csr_matrix((normalized, (row_idx, col_idx)), shape=matrix.shape)

@@ -2,6 +2,7 @@ import unittest
 
 import numpy as np
 from scipy.sparse import csr_matrix
+from six import iteritems
 
 from coupled_biased_random_walks.matrix import (random_walk,
                                                 row_normalize_csr_matrix)
@@ -47,10 +48,26 @@ class TestRowNormalizeCSRMatrix(unittest.TestCase):
     """
 
     def test_row_normalize(self):
-        for _ in range(3):
-            data = np.random.rand(4)
-            matrix = construct_2x2_matrix(data)
-            matrix = row_normalize_csr_matrix(matrix)
-            sums = matrix.sum(axis=1)
-            self.assertAlmostEqual(sums[0], 1, 3)
-            self.assertAlmostEqual(sums[1], 1, 3)
+        table = {
+            'random entries': {
+                'data': np.random.rand(4),
+                'expected_row_0': 1,
+                'expected_row_1': 1,
+            },
+            'zero row': {
+                'data': np.array([0, 0, 1, 1]),
+                'expected_row_0': 0,
+                'expected_row_1': 1,
+            },
+            'all zeros': {
+                'data': np.zeros(4),
+                'expected_row_0': 0,
+                'expected_row_1': 0,
+            }
+        }
+        for test_name, test in iteritems(table):
+            matrix = construct_2x2_matrix(test['data'])
+            normalized = row_normalize_csr_matrix(matrix)
+            row_sums = normalized.sum(axis=1)
+            self.assertAlmostEqual(row_sums[0], test['expected_row_0'], 3, test_name)
+            self.assertAlmostEqual(row_sums[1], test['expected_row_1'], 3, test_name)
