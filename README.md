@@ -28,7 +28,7 @@ scores = detector.score(observations)
 ```
 Even after fitting and scoring, more observations can be added via `add_observations` and the detector can again be fit to be used for scoring.  The advantage of this implementation is this ability to incrementally update with new observations.
 
-The results of scoring the example data are shown below.  Note that the only row where fraud was present (`"Cheat? = yes`) received the largest anomaly score.
+The results of scoring the example data are shown below.  Note that the only row where fraud was present (`Cheat? = yes`) received the largest anomaly score.
 ```
 Score: 0.1055 | Data: {'Gender': 'male', 'Education': 'master', 'Marriage': 'divorced', 'Income': 'low'}
 Score: 0.0797 | Data: {'Gender': 'female', 'Education': 'master', 'Marriage': 'married', 'Income': 'medium'}
