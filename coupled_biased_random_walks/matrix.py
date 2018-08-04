@@ -35,12 +35,16 @@ def row_normalize_csr_matrix(matrix):
     Row normalize a csr matrix without mutating the input
     :param matrix: scipy.sparse.csr_matrix instance
     """
+    if not isinstance(matrix, csr_matrix):
+        input_type = matrix.__class__.__name__
+        expected_type = csr_matrix.__class__.__name__
+        raise TypeError('expected input of type {}, received input of type{}'.format(expected_type, input_type))
+    if any(matrix.data == 0):
+        raise ValueError('input must be scipy.sparse.csr_matrix and must not store zeros')
     # get row index for every nonzero element in matrix
     row_idx, col_idx = matrix.nonzero()
     # compute unraveled row sums
     row_sums = matrix.sum(axis=1).A1
-    # get matrix entries excluding all-zero rows
-    matrix_data = matrix[row_sums > 0, :].data
     # divide data by (broadcasted) row sums
-    normalized = matrix_data / row_sums[row_idx]
+    normalized = matrix.data / row_sums[row_idx]
     return csr_matrix((normalized, (row_idx, col_idx)), shape=matrix.shape)

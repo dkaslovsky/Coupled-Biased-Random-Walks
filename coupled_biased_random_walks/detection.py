@@ -119,11 +119,16 @@ class CBRW(object):
             symb2_count = self._counter.get_count(symbol2)
 
             # p(symb1 | symb2)
-            idx.append((symb1_idx, symb2_idx))
-            prob.append(bias_dict[symbol2] * joint_count / symb2_count)
+            p =  bias_dict[symbol2] * joint_count / symb2_count
+            if p > 0:
+                prob.append(p)
+                idx.append((symb1_idx, symb2_idx))
+
             # p(symb2 | symb1)
-            idx.append((symb2_idx, symb1_idx))
-            prob.append(bias_dict[symbol1] * joint_count / symb1_count)
+            p = bias_dict[symbol1] * joint_count / symb1_count
+            if p > 0:
+                prob.append(p)
+                idx.append((symb2_idx, symb1_idx))
 
         n_symb = len(self._counter.index)
         trans_matrix = csr_matrix((prob, zip(*idx)), shape=(n_symb, n_symb))
