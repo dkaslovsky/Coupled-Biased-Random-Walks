@@ -14,7 +14,7 @@ Let's run the CBRW detection algorithm on the authors' example data set from the
 
 <img src="./example_table.png" width="400">
 
-This data is saved as a [.CSV file](./data/) in this repository and is loaded into memory as a list of dicts by [example.py](./example.py).
+This data is saved as a [.CSV file](./data/CBRW_paper_example.csv) in this repository and is loaded into memory as a list of dicts by [example.py](./example.py).
 
 Note that we drop the "Cheat?" column as this is essentially the target variable indicating the anomalous activity to be detected.  The detector is instantiated as observations are added as follows:
 ```
