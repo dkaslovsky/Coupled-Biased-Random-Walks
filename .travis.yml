@@ -10,7 +10,7 @@ install:
   - pip install coveralls
 
 script:
-   pytest --cov=pyod/
+   py.test --cov=coupled_biased_random_walks/
 
 after_success:
   - coveralls
