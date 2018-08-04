@@ -5,7 +5,6 @@ from scipy.sparse import csr_matrix
 from coupled_biased_random_walks.detection import CBRW
 
 
-
 class TestCBRW(unittest.TestCase):
     """
     Unit tests for CBRW
