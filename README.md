@@ -1,4 +1,7 @@
 # Coupled-Biased-Random-Walks
+
+[![Build Status](https://travis-ci.org/dkaslovsky/Coupled-Biased-Random-Walks.svg?branch=master)](https://travis-ci.org/dkaslovsky/Coupled-Biased-Random_Walks)
+
 Outlier detection for categorical data
 
 ### Overview
