@@ -8,6 +8,13 @@ This implementation operates on Python dicts rather than Pandas DataFrames.  Thi
 
 If one is working with data previously loaded into a DataFrame, simply use the result of `pandas.DataFrame.to_dict(orient='records')` instead of the DataFrame itself to add observations to the model.
 
+### Installation
+This package is not yet hosted on PyPI.  To install:
+```
+$ git clone git@github.com:dkaslovsky/Coupled-Biased-Random-Walks.git
+$ cd Coupled-Biased-Random-Walks
+$ python setup.py install
+```
 
 ### Example
 Let's run the CBRW detection algorithm on the authors' example data set from the paper:
