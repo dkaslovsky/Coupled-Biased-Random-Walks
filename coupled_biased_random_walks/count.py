@@ -45,7 +45,7 @@ class IncrementingDict(Mapping):
         Inserts a (strictly new) key
         :param key: any hashable object to be used as a key
         """
-        if self._d.has_key(key):
+        if key in self._d:
             return
         self._d[key] = self._next_val
         self._next_val += 1
