@@ -16,12 +16,38 @@ Let's run the CBRW detection algorithm on the authors' example data set from the
 
 This data is saved as a [.CSV file](./data/CBRW_paper_example.csv) in this repository and is loaded into memory as a list of dicts by [example.py](./example.py).
 
-Note that we drop the "Cheat?" column as this is essentially the target variable indicating the anomalous activity to be detected.  The detector is instantiated as observations are added as follows:
+Note that we drop the "Cheat?" column when loading the data, as this is essentially the target variable indicating the anomalous activity to be detected.  The detector is instantiated as observations are added as follows:
 ```
-cbrw = CBRW()
-cbrw.add_observations(observations)
+detector = CBRW()
+detector.add_observations(observations)
 ```
-where `observations` is an iterable of dicts such as the one loaded from the example .CSV file.
+where `observations` is an iterable of dicts such as the one loaded from the example .CSV file.  Once all of the observations are loaded, the detector can be finalized for scoring by calling `fit()` and observations can then be scored.
+```
+detector.fit()
+scores = detector.score(observations)
+```
+Even after fitting and scoring, more observations can be added via `add_observations` and the detector can again be fit to be used for scoring.  The advantage of this implementation is this ability to incrementally update with new observations.
+
+The results of scoring the example data are shown below.  Note that the only row where fraud was present (`"Cheat? = yes`) received the largest anomaly score.
+```
+Score: 0.1055 | Data: {'Gender': 'male', 'Education': 'master', 'Marriage': 'divorced', 'Income': 'low'}
+Score: 0.0797 | Data: {'Gender': 'female', 'Education': 'master', 'Marriage': 'married', 'Income': 'medium'}
+Score: 0.0741 | Data: {'Gender': 'male', 'Education': 'master', 'Marriage': 'single', 'Income': 'high'}
+Score: 0.0805 | Data: {'Gender': 'male', 'Education': 'bachelor', 'Marriage': 'married', 'Income': 'medium'}
+Score: 0.0992 | Data: {'Gender': 'female', 'Education': 'master', 'Marriage': 'divorced', 'Income': 'high'}
+Score: 0.0752 | Data: {'Gender': 'male', 'Education': 'PhD', 'Marriage': 'married', 'Income': 'high'}
+Score: 0.0741 | Data: {'Gender': 'male', 'Education': 'master', 'Marriage': 'single', 'Income': 'high'}
+Score: 0.0815 | Data: {'Gender': 'female', 'Education': 'PhD', 'Marriage': 'single', 'Income': 'medium'}
+Score: 0.0728 | Data: {'Gender': 'male', 'Education': 'PhD', 'Marriage': 'married', 'Income': 'medium'}
+Score: 0.0979 | Data: {'Gender': 'male', 'Education': 'bachelor', 'Marriage': 'single', 'Income': 'low'}
+Score: 0.0812 | Data: {'Gender': 'female', 'Education': 'PhD', 'Marriage': 'married', 'Income': 'medium'}
+Score: 0.0887 | Data: {'Gender': 'male', 'Education': 'master', 'Marriage': 'single', 'Income': 'low'}
+```
+
+The entire example can be reproduced by running:
+```
+$ python example.py
+```
 
 ### Tests
 To run unit tests:
