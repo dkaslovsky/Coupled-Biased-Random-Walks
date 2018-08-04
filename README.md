@@ -54,3 +54,17 @@ To run unit tests:
 ```
 $ python -m unittest discover -v
 ```
+Test coverage can be reported using the `pytest-cov` package:
+```
+$ pip install pytest-cov
+$ py.test --cov=coupled_biased_random_walks/
+
+Name                                       Stmts   Miss  Cover
+--------------------------------------------------------------
+coupled_biased_random_walks/__init__.py        0      0   100%
+coupled_biased_random_walks/count.py          65      4    94%
+coupled_biased_random_walks/detection.py      71      3    96%
+coupled_biased_random_walks/matrix.py         26      1    96%
+--------------------------------------------------------------
+TOTAL                                        162      8    95%
+```
