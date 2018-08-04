@@ -75,20 +75,20 @@ class TestObservationCounter(unittest.TestCase):
         expected_a_items = [
             (('feature_a', 'a_val_1'), 2)
         ]
-        self.assertListEqual(feature_a_counts.items(), expected_a_items)
+        self.assertListEqual(list(feature_a_counts.items()), expected_a_items)
         # feature b
         feature_b_counts = self.oc.counts['feature_b']
         expected_b_items = [
             (('feature_b', 'b_val_1'), 2)
         ]
-        self.assertListEqual(feature_b_counts.items(), expected_b_items)
+        self.assertListEqual(list(feature_b_counts.items()), expected_b_items)
         # feature c
         feature_c_counts = self.oc.counts['feature_c']
         expected_c_items = [
             (('feature_c', 'c_val_1'), 1),
             (('feature_c', 'c_val_2'), 1)
         ]
-        self.assertListEqual(feature_c_counts.items(), expected_c_items)
+        self.assertListEqual(list(feature_c_counts.items()), expected_c_items)
 
         # test joint_counts
         expected_joint_counts = {
