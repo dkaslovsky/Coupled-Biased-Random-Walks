@@ -1,4 +1,4 @@
-import numpy as np
+from six.moves import zip
 
 from coupled_biased_random_walks.detection import CBRW
 from data.loading import load_from_csv
@@ -20,7 +20,6 @@ if __name__ == '__main__':
     detector.fit()
     scores = detector.score(data)
 
-    # print scores in descending order
-    idx = np.argsort(scores)[::-1]
-    for i in idx:
-        print('Score: {} | Data: {}'.format(round(scores[i], 4), data[i]))
+    # print scores and observations
+    for score, datum in zip(scores, data):
+        print('Score: {} | Data: {}'.format(round(score, 4), datum))
