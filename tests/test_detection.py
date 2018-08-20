@@ -46,17 +46,17 @@ class TestCBRW(unittest.TestCase):
 
     def test_compute_biases(self):
         bias_dict = self.cbrw._compute_biases()
-        self.assertEqual(bias_dict['feature_a', 'a_val_1'], 0)
-        self.assertEqual(bias_dict['feature_b', 'b_val_1'], 0)
-        self.assertEqual(bias_dict['feature_c', 'c_val_1'], 0.25)
-        self.assertEqual(bias_dict['feature_c', 'c_val_2'], 0.25)
+        self.assertEqual(bias_dict[('feature_a', 'a_val_1')], 0)
+        self.assertEqual(bias_dict[('feature_b', 'b_val_1')], 0)
+        self.assertEqual(bias_dict[('feature_c', 'c_val_1')], 0.25)
+        self.assertEqual(bias_dict[('feature_c', 'c_val_2')], 0.25)
 
     def test_compute_biased_transition_matrix(self):
         bias_dict = self.cbrw._compute_biases()
         transition_matrix = self.cbrw._compute_biased_transition_matrix(bias_dict)
         self.assertIsInstance(transition_matrix, csr_matrix)
         self.assertTupleEqual(transition_matrix.shape, (4, 4))
-        self.assertTrue((0 <= transition_matrix.data).all())
+        self.assertTrue((0 < transition_matrix.data).all())
         self.assertTrue((transition_matrix.data <= 1).all())
 
     def test_fit(self):
