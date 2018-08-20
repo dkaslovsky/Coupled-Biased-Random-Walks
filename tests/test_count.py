@@ -56,7 +56,8 @@ class TestObservationCounter(unittest.TestCase):
         {'feature_a': 'a_val_1', 'feature_b': 'b_val_1', 'feature_c': 'c_val_1'},
         {'feature_b': 'b_val_1', 'feature_c': 'c_val_2', 'feature_a': 'a_val_1'}
     ]
-    all_keys = set(observations[0].items() + observations[1].items())
+    # cast to list for Python 3
+    all_keys = set(list(observations[0].items()) + list(observations[1].items()))
 
     def setUp(self):
         self.oc = ObservationCounter()
