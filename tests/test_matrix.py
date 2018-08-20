@@ -3,6 +3,7 @@ import unittest
 import numpy as np
 from scipy.sparse import csr_matrix
 from six import iteritems
+from six.moves import zip
 
 from coupled_biased_random_walks.matrix import (random_walk,
                                                 row_normalize_csr_matrix)
@@ -14,10 +15,10 @@ def construct_2x2_matrix(data):
     idx = [(0, 0), (0, 1), (1, 0), (1, 1)]
     matrix_data = []
     matrix_idx = []
-    for i, d in enumerate(data):
-        if d != 0:
-            matrix_data.append(d)
-            matrix_idx.append(idx[i])
+    for ix, datum in zip(idx, data):
+        if datum != 0:
+            matrix_data.append(datum)
+            matrix_idx.append(ix)
     if matrix_data:
         return csr_matrix((matrix_data, zip(*matrix_idx)), shape=(2, 2))
     return csr_matrix(([], ([], [])), shape=(2 ,2))
