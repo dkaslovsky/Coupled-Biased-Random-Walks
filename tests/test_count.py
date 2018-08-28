@@ -1,9 +1,11 @@
 import unittest
+from collections import Counter
 
-from six import iteritems
-
+import numpy as np
 from coupled_biased_random_walks.count import (IncrementingDict,
-                                               ObservationCounter)
+                                               ObservationCounter, get_mode,
+                                               isnan)
+from six import iteritems
 
 
 class TestIncrementingDict(unittest.TestCase):
@@ -65,7 +67,13 @@ class TestObservationCounter(unittest.TestCase):
 
     def test_update(self):
         # test n_obs
-        self.assertEqual(self.oc.n_obs, 2)
+        expected_counts = {
+            'feature_a': 2,
+            'feature_b': 2,
+            'feature_c': 2
+        }
+        for feature_name, count in iteritems(self.oc.n_obs):
+            self.assertEqual(count, expected_counts[feature_name])
 
         # test index
         self.assertSetEqual(set(self.oc.index.keys()), self.all_keys)
@@ -125,3 +133,75 @@ class TestObservationCounter(unittest.TestCase):
             count = self.oc.get_count(test['feature tuple'])
             expected = test['expected']
             self.assertEqual(count, expected, test_name)
+
+
+class TestIsNaN(unittest.TestCase):
+    """
+    Unit tests for isnan()
+    """
+
+    def test_isnan(self):
+        table = {
+            'numpy nan': {
+                'test': np.nan,
+                'expected': True
+            },
+            'float nan': {
+                'test': float('nan'),
+                'expected': True
+            },
+            'int zero': {
+                'test': 0,
+                'expected': False
+            },
+            'float zero': {
+                'test': 0.0,
+                'expected': False
+            },
+            'int nonzero': {
+                'test': 456,
+                'expected': False
+            },
+            'float nonzero': {
+                'test': 10.123,
+                'expected': False
+            },
+            'string': {
+                'test': 'nan',
+                'expected': False
+            },
+        }
+        for test_name, test in iteritems(table):
+            isnan_result = isnan(test['test'])
+            self.assertEqual(isnan_result, test['expected'], test_name)
+
+
+class TestGetMode(unittest.TestCase):
+    """
+    Unit tests for get_mode()
+    """
+
+    def setUp(self):
+        self.c1 = Counter()
+        self.c1.update(['a', 'a', 'a', 'b', 'b'])
+        self.c2 = Counter()
+        self.c2.update(['a', 'a', 'b', 'b'])
+    
+    def test_get_mode(self):
+        table = {
+            'empty counter': {
+                'counter': Counter(),
+                'expected': 0
+            },
+            'unique mode': { 
+                'counter': self.c1,
+                'expected': 3
+            },
+            'nonunique mode': {
+                'counter': self.c2,
+                'expected': 2
+            },
+        }
+        for test_name, test in iteritems(table):
+            mode = get_mode(test['counter'])
+            self.assertEqual(mode, test['expected'], test_name)

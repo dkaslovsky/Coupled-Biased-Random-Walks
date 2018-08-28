@@ -11,22 +11,6 @@ except ImportError:
     from collections.abc import Mapping
 
 
-def get_feature_name(feature_tuple):
-    """
-    Helper function to return feature name from tuple representation
-    :param feature_tuple: tuple of the form (feature_name, feature_value)
-    """
-    return feature_tuple[0]
-
-
-def get_mode(counter):
-    """
-    Helper function to return the most common element from a counter
-    :param counter: collections.Counter instance
-    """
-    return counter.most_common(1)[0][1]
-
-
 class IncrementingDict(Mapping):
 
     """
@@ -72,8 +56,8 @@ class ObservationCounter(object):
     """
 
     def __init__(self):
-        # total number of observations counted
-        self.n_obs = 0
+        # stores count of each feature type observed
+        self.n_obs = Counter()
         # stores individual counts of features, keyed by feature name and then
         # by (feature_name, feature_value) tuple
         self._counts = defaultdict(Counter)
@@ -108,10 +92,6 @@ class ObservationCounter(object):
             self._update_counts(obs1)
             self._update_joint_counts(obs2)
             self._update_index(obs3)
-            # In the future we might need to track n_obs per feature
-            # and store it in a dict; this might require skipping features
-            # with value nan.  For now just count each observation.
-            self.n_obs += 1
 
     def _update_counts(self, observation):
         """
@@ -119,8 +99,13 @@ class ObservationCounter(object):
         :param observation: list of tuples of the form ('feature_name', 'feature_value')
         """
         for item in observation:
-            feature_name = get_feature_name(item)
-            self._counts[feature_name].update([item])
+            feature_value = get_feature_value(item)
+            # feature may be present but with value NaN representing a feature not observed 
+            # in the observation (e.g., a missing value is NaN-filled in a pandas DataFrame)
+            if not isnan(feature_value):
+                feature_name = get_feature_name(item)
+                self._counts[feature_name].update([item])
+                self.n_obs.update([feature_name])
 
     def _update_joint_counts(self, observation):
         """
@@ -149,3 +134,40 @@ class ObservationCounter(object):
         except TypeError:
             # feature_name is not in self._counts
             return 0
+
+
+# Helper functions
+
+def get_feature_name(feature_tuple):
+    """
+    Helper function to return feature name from tuple representation
+    :param feature_tuple: tuple of the form (feature_name, feature_value)
+    """
+    return feature_tuple[0]
+
+
+def get_feature_value(feature_tuple):
+    """
+    Helper function to return feature value from tuple representation
+    :param feature_tuple: tuple of the form (feature_name, feature_value)
+    """
+    return feature_tuple[1]
+
+
+def get_mode(counter):
+    """
+    Helper function to return the most common element from a counter
+    :param counter: collections.Counter instance
+    """
+    mode = counter.most_common(1)
+    if not mode:
+        return 0
+    return mode[0][1]
+
+
+def isnan(x):
+    """
+    Return True if x is NaN where x can be of any type
+    :param x: any object for which (in)equality can be checked
+    """
+    return x != x

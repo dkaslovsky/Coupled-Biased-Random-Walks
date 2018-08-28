@@ -44,7 +44,8 @@ class CBRW(object):
         """
         Compute model based on current observations in state
         """
-        if self._counter.n_obs == 0:
+        n_observed = get_mode(self._counter.n_obs)
+        if n_observed == 0:
             raise ValueError('no observations provided')
 
         # execute biased random walk
@@ -141,7 +142,7 @@ class CBRW(object):
         bias_dict = {}
         for feature_name, value_counts in iteritems(self._counter.counts):
             mode = get_mode(value_counts)
-            base = 1 - (mode / self._counter.n_obs)
+            base = 1 - (mode / self._counter.n_obs[feature_name])
             bias_dict.update({feature_val: (1 - (count / mode) + base) / 2
                               for feature_val, count in iteritems(value_counts)})
         return bias_dict
