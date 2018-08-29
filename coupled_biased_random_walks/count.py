@@ -89,6 +89,7 @@ class ObservationCounter(object):
         for observation in observation_iterable:
             # feature may be present but with value NaN representing a feature not observed 
             # in the observation (e.g., a missing value is NaN-filled in a pandas DataFrame)
+            # so remove any such features from the observation
             obs = {key: value for key, value in iteritems(observation) if not isnan(value)}
             # create 3 iterators
             obs1, obs2, obs3 = tee(iteritems(obs), 3)
@@ -102,13 +103,9 @@ class ObservationCounter(object):
         :param observation: iterable of tuples of the form ('feature_name', 'feature_value')
         """
         for item in observation:
-            feature_value = get_feature_value(item)
-            # feature may be present but with value NaN representing a feature not observed 
-            # in the observation (e.g., a missing value is NaN-filled in a pandas DataFrame)
-            if not isnan(feature_value):
-                feature_name = get_feature_name(item)
-                self._counts[feature_name].update([item])
-                self.n_obs.update([feature_name])
+            feature_name = get_feature_name(item)
+            self._counts[feature_name].update([item])
+            self.n_obs.update([feature_name])
 
     def _update_joint_counts(self, observation):
         """
