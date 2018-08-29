@@ -71,7 +71,31 @@ class TestCBRW(unittest.TestCase):
 
     def test_score(self):
         self.cbrw.fit()
-        score = self.cbrw.score(self.observations[0])
+
+        # score observation where all features and values
+        # have been previously observed
+        to_be_scored = self.observations[0]
+        score = self.cbrw.score(to_be_scored)
         score = score[0]
         self.assertGreaterEqual(score, 0)
         self.assertLessEqual(score, 1)
+
+        # score observation where all features but not all
+        # values have been previously observed
+        to_be_scored = {
+            'feature_a': 'a_val_x',
+            'feature_b': 'b_val_1',
+            'feature_c': 'c_val_1'
+        }
+        with self.assertRaises(ValueError):
+            _ = self.cbrw.score(to_be_scored)
+
+        # score observation where a feature has not
+        # been previously observed
+        to_be_scored = {
+            'feature_x': 'x_val_x',
+            'feature_b': 'b_val_1',
+            'feature_c': 'c_val_1'
+        }
+        with self.assertRaises(ValueError):
+            _ = self.cbrw.score(to_be_scored)

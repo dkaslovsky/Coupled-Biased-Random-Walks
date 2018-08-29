@@ -92,7 +92,7 @@ class CBRW(object):
         try:
             return self._stationary_prob[node_name]
         except KeyError:
-            raise ValueError('unknown feature value: {}'.format(node_name))
+            raise ValueError('unknown feature or feature value: {}'.format(node_name))
 
     def _get_feature_relevance(self, feature_tuple):
         """
