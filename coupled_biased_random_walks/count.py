@@ -87,8 +87,11 @@ class ObservationCounter(object):
         if isinstance(observation_iterable, dict):
             observation_iterable = [observation_iterable]
         for observation in observation_iterable:
+            # feature may be present but with value NaN representing a feature not observed 
+            # in the observation (e.g., a missing value is NaN-filled in a pandas DataFrame)
+            obs = {key: value for key, value in iteritems(observation) if not isnan(value)}
             # create 3 iterators
-            obs1, obs2, obs3 = tee(iteritems(observation), 3)
+            obs1, obs2, obs3 = tee(iteritems(obs), 3)
             self._update_counts(obs1)
             self._update_joint_counts(obs2)
             self._update_index(obs3)
@@ -96,7 +99,7 @@ class ObservationCounter(object):
     def _update_counts(self, observation):
         """
         Update single counts
-        :param observation: list of tuples of the form ('feature_name', 'feature_value')
+        :param observation: iterable of tuples of the form ('feature_name', 'feature_value')
         """
         for item in observation:
             feature_value = get_feature_value(item)
@@ -110,7 +113,7 @@ class ObservationCounter(object):
     def _update_joint_counts(self, observation):
         """
         Update joint counts
-        :param observation: list of tuples of the form ('feature_name', 'feature_value')
+        :param observation: iterable of tuples of the form ('feature_name', 'feature_value')
         """
         pairs = combinations(sorted(observation), 2)
         self._joint_counts.update(pairs)
@@ -118,7 +121,7 @@ class ObservationCounter(object):
     def _update_index(self, observation):
         """
         Update index mapping
-        :param observation: list of tuples of the form ('feature_name', 'feature_value')
+        :param observation: iterable of tuples of the form ('feature_name', 'feature_value')
         """
         for item in observation:
             self._index.insert(item)

@@ -3,7 +3,8 @@ from collections import Counter
 
 import numpy as np
 from coupled_biased_random_walks.count import (IncrementingDict,
-                                               ObservationCounter, get_mode,
+                                               ObservationCounter,
+                                               get_feature_value, get_mode,
                                                isnan)
 from six import iteritems
 
@@ -59,7 +60,7 @@ class TestObservationCounter(unittest.TestCase):
         {'feature_b': 'b_val_1', 'feature_c': 'c_val_2', 'feature_a': 'a_val_1'}
     ]
     # cast to list for Python 3
-    all_keys = set(list(observations[0].items()) + list(observations[1].items()))
+    all_index_keys = set(list(observations[0].items()) + list(observations[1].items()))
 
     def setUp(self):
         self.oc = ObservationCounter()
@@ -76,7 +77,7 @@ class TestObservationCounter(unittest.TestCase):
             self.assertEqual(count, expected_counts[feature_name])
 
         # test index
-        self.assertSetEqual(set(self.oc.index.keys()), self.all_keys)
+        self.assertSetEqual(set(self.oc.index.keys()), self.all_index_keys)
 
         # test counts
         # feature a
@@ -133,6 +134,68 @@ class TestObservationCounter(unittest.TestCase):
             count = self.oc.get_count(test['feature tuple'])
             expected = test['expected']
             self.assertEqual(count, expected, test_name)
+
+
+class TestObservationCounterWithMissingData(unittest.TestCase):
+    """
+    Unit tests for ObservationCounter
+    """
+
+    observations = [
+        {'feature_a': 'a_val_1', 'feature_c': 'c_val_2', 'feature_d': np.nan},
+        {'feature_b': 'b_val_1', 'feature_a': 'a_val_1', 'feature_c': np.nan}
+    ]
+    
+    #[obs for obs in observations[0].items() if not isnan(obs[1])]
+    all_index_keys = set()
+    for observation in observations:
+        for item in iteritems(observation):
+            if not isnan(get_feature_value(item)):
+                all_index_keys.add(item)
+
+    def setUp(self):
+        self.oc = ObservationCounter()
+        self.oc.update(self.observations)
+
+    def test_update(self):
+        # test n_obs
+        expected_counts = {
+            'feature_a': 2,
+            'feature_b': 1,
+            'feature_c': 1
+        }
+        for feature_name, count in iteritems(self.oc.n_obs):
+            self.assertEqual(count, expected_counts[feature_name])
+
+        # test index
+        self.assertSetEqual(set(self.oc.index.keys()), self.all_index_keys)
+
+        # test counts
+        # feature a
+        feature_a_counts = self.oc.counts['feature_a']
+        expected_a_items = [
+            (('feature_a', 'a_val_1'), 2)
+        ]
+        self.assertListEqual(list(feature_a_counts.items()), expected_a_items)
+        # feature b
+        feature_b_counts = self.oc.counts['feature_b']
+        expected_b_items = [
+            (('feature_b', 'b_val_1'), 1)
+        ]
+        self.assertListEqual(list(feature_b_counts.items()), expected_b_items)
+        # feature c
+        feature_c_counts = self.oc.counts['feature_c']
+        expected_c_items = [
+            (('feature_c', 'c_val_2'), 1)
+        ]
+        self.assertListEqual(list(feature_c_counts.items()), expected_c_items)
+
+        # test joint_counts
+        expected_joint_counts = {
+            (('feature_a', 'a_val_1'), ('feature_b', 'b_val_1')): 1,
+            (('feature_a', 'a_val_1'), ('feature_c', 'c_val_2')): 1,
+        }
+        self.assertDictEqual(self.oc.joint_counts, expected_joint_counts)
 
 
 class TestIsNaN(unittest.TestCase):
