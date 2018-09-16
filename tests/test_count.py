@@ -2,11 +2,12 @@ import unittest
 from collections import Counter
 
 import numpy as np
+from six import iteritems
+
 from coupled_biased_random_walks.count import (IncrementingDict,
                                                ObservationCounter,
                                                get_feature_value, get_mode,
                                                isnan)
-from six import iteritems
 
 
 class TestIncrementingDict(unittest.TestCase):
