@@ -59,8 +59,12 @@ class TestObservationCounter(unittest.TestCase):
         {'feature_a': 'a_val_1', 'feature_b': 'b_val_1', 'feature_c': 'c_val_1'},
         {'feature_b': 'b_val_1', 'feature_c': 'c_val_2', 'feature_a': 'a_val_1'}
     ]
-    # cast to list for Python 3
-    all_index_keys = set(list(observations[0].items()) + list(observations[1].items()))
+
+    # keep a set of all feature_name, feature_val pairs for testing
+    all_index_keys = set()
+    for observation in observations:
+        for item in iteritems(observation):
+            all_index_keys.add(item)
 
     def setUp(self):
         self.oc = ObservationCounter()
@@ -145,8 +149,8 @@ class TestObservationCounterWithMissingData(unittest.TestCase):
         {'feature_a': 'a_val_1', 'feature_c': 'c_val_2', 'feature_d': np.nan},
         {'feature_b': 'b_val_1', 'feature_a': 'a_val_1', 'feature_c': np.nan}
     ]
-    
-    #[obs for obs in observations[0].items() if not isnan(obs[1])]
+
+    # keep a set of all feature_name, feature_val pairs for testing
     all_index_keys = set()
     for observation in observations:
         for item in iteritems(observation):
