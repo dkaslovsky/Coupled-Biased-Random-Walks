@@ -4,11 +4,7 @@ from collections import Counter
 import numpy as np
 from six import iteritems
 
-from coupled_biased_random_walks.count import (IncrementingDict,
-                                               ObservationCounter,
-                                               get_feature_name,
-                                               get_feature_value, get_mode,
-                                               isnan)
+import coupled_biased_random_walks.count as cnt
 
 
 class TestIncrementingDict(unittest.TestCase):
@@ -17,7 +13,7 @@ class TestIncrementingDict(unittest.TestCase):
     """
 
     def setUp(self):
-        self.d = IncrementingDict()
+        self.d = cnt.IncrementingDict()
 
     def test_insert(self):
         table = {
@@ -69,7 +65,7 @@ class TestObservationCounter(unittest.TestCase):
             all_index_keys.add(item)
 
     def setUp(self):
-        self.oc = ObservationCounter()
+        self.oc = cnt.ObservationCounter()
         self.oc.update(self.observations)
 
     def test_update(self):
@@ -156,11 +152,11 @@ class TestObservationCounterWithMissingData(unittest.TestCase):
     all_index_keys = set()
     for observation in observations:
         for item in iteritems(observation):
-            if not isnan(get_feature_value(item)):
+            if not cnt.isnan(cnt.get_feature_value(item)):
                 all_index_keys.add(item)
 
     def setUp(self):
-        self.oc = ObservationCounter()
+        self.oc = cnt.ObservationCounter()
         self.oc.update(self.observations)
 
     def test_update(self):
@@ -241,7 +237,7 @@ class TestIsNaN(unittest.TestCase):
             },
         }
         for test_name, test in iteritems(table):
-            isnan_result = isnan(test['test'])
+            isnan_result = cnt.isnan(test['test'])
             self.assertEqual(isnan_result, test['expected'], test_name)
 
 
@@ -272,7 +268,7 @@ class TestGetMode(unittest.TestCase):
             },
         }
         for test_name, test in iteritems(table):
-            mode = get_mode(test['counter'])
+            mode = cnt.get_mode(test['counter'])
             self.assertEqual(mode, test['expected'], test_name)
 
 
@@ -285,9 +281,9 @@ class TestFeatureTupleGetters(unittest.TestCase):
         self.tup = ('feature_name', 'feature_value')
     
     def test_get_feature_name(self):
-        feature_name = get_feature_name(self.tup)
+        feature_name = cnt.get_feature_name(self.tup)
         self.assertEqual(feature_name, 'feature_name')
 
     def test_get_feature_value(self):
-        feature_value = get_feature_value(self.tup)
+        feature_value = cnt.get_feature_value(self.tup)
         self.assertEqual(feature_value, 'feature_value')
