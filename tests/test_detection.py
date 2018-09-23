@@ -2,6 +2,7 @@ import unittest
 
 from scipy.sparse import csr_matrix
 
+from coupled_biased_random_walks.count import isnan
 from coupled_biased_random_walks.detection import CBRW
 
 
@@ -26,9 +27,9 @@ class TestCBRW(unittest.TestCase):
         # get score for valid node
         valid_node_score = self.cbrw._get_node_score(('feature_a', 'a_val_1'))
         self.assertEqual(valid_node_score, 0.25)
-        # get score for invalid node - should raise exception
-        with self.assertRaises(ValueError):
-            _ = self.cbrw._get_node_score(('feature_a', 'xxx'))
+        # get score for invalid node - should return nan
+        invalid_node_score = self.cbrw._get_node_score(('feature_a', 'xxx'))
+        self.assertTrue(isnan(invalid_node_score))
 
     def test_get_feature_relevance(self):
         self.cbrw._feature_relevance = {
@@ -87,8 +88,8 @@ class TestCBRW(unittest.TestCase):
             'feature_b': 'b_val_1',
             'feature_c': 'c_val_1'
         }
-        with self.assertRaises(ValueError):
-            _ = self.cbrw.score(to_be_scored)
+        score = self.cbrw.score(to_be_scored)
+        self.assertTrue(isnan(score[0]))
 
         # score observation where a feature has not
         # been previously observed
@@ -97,5 +98,18 @@ class TestCBRW(unittest.TestCase):
             'feature_b': 'b_val_1',
             'feature_c': 'c_val_1'
         }
-        with self.assertRaises(ValueError):
-            _ = self.cbrw.score(to_be_scored)
+        score = self.cbrw.score(to_be_scored)
+        self.assertTrue(isnan(score[0]))
+        
+        # score valid and invalid observations in one call
+        to_be_scored = [
+            self.observations[0],
+            {'feature_x': 'x_val_x', 'feature_b': 'b_val_1'}
+        ]
+        scores = self.cbrw.score(to_be_scored)
+        valid_score = scores[0]
+        invalid_score = scores[1]
+        self.assertFalse(isnan(valid_score))
+        self.assertGreaterEqual(valid_score, 0)
+        self.assertLessEqual(valid_score, 1)
+        self.assertTrue(isnan(invalid_score))

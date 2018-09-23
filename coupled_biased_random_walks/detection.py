@@ -44,6 +44,7 @@ class CBRW(object):
         """
         Compute model based on current observations in state
         """
+        # check number of observations added
         n_observed = get_mode(self._counter.n_obs)
         if n_observed == 0:
             raise ValueError('no observations provided')
@@ -89,10 +90,7 @@ class CBRW(object):
         Getter for the probability of a feature value
         :param node_name: tuple of the form (feature_name, feature_value)
         """
-        try:
-            return self._stationary_prob[node_name]
-        except KeyError:
-            raise ValueError('unknown feature or feature value: {}'.format(node_name))
+        return self._stationary_prob.get(node_name, np.nan)
 
     def _get_feature_relevance(self, feature_tuple):
         """
