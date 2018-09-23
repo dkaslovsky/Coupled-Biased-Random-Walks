@@ -57,6 +57,19 @@ The entire example can be reproduced by running:
 $ python example.py
 ```
 
+The CBRW algorithm can also be used to calculate feature weights (also referred to as "feature relevance" or "feature importance").  These weights are calculated when the detector is fit, and are used during scoring, but can also be used by any other outlier detection algorithm.  Thus, the CBRW algorithm can be used simply to calculate feature weights and need not score observations.  Feature weights are stored as a property of the detector after the detector's `fit` method has been called:
+```
+>>> detector = CBRW()
+>>> detector.add_observations(observations)
+>>> detector.fit()
+>>> detector.feature_weights
+
+{'Education': 0.26272841835358907,
+ 'Gender': 0.16078750024987953,
+ 'Income': 0.2938981973816106,
+ 'Marriage': 0.2825858840149206}
+```
+
 ### Tests
 To run unit tests:
 ```

@@ -31,6 +31,10 @@ class CBRW(object):
         self._counter = ObservationCounter()
         self._stationary_prob = None
         self._feature_relevance = None
+    
+    @property
+    def feature_weights(self):
+        return self._feature_relevance
 
     def add_observations(self, observation_iterable):
         """
