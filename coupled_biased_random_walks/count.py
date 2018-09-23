@@ -92,11 +92,11 @@ class ObservationCounter(object):
             # observation (e.g., a missing value is NaN-filled in a pandas DataFrame) so
             # we remove any such features from the observation to avoid including in counts
             obs = {key: value for key, value in iteritems(observation) if not isnan(value)}
-            # create 3 iterators
-            obs1, obs2, obs3 = tee(iteritems(obs), 3)
+            # create iterators of obs for updating counts
+            obs1, obs2 = tee(iteritems(obs), 2)
             self._update_counts(obs1)
             self._update_joint_counts(obs2)
-            self._update_index(obs3)
+            #self._update_index(obs3)
 
     def _update_counts(self, observation):
         """
@@ -106,6 +106,7 @@ class ObservationCounter(object):
         for item in observation:
             feature_name = get_feature_name(item)
             self._counts[feature_name].update([item])
+            self._index.insert(item)
             self.n_obs.update([feature_name])
 
     def _update_joint_counts(self, observation):
@@ -116,13 +117,13 @@ class ObservationCounter(object):
         pairs = combinations(sorted(observation), 2)
         self._joint_counts.update(pairs)
 
-    def _update_index(self, observation):
-        """
-        Update index mapping
-        :param observation: iterable of tuples of the form ('feature_name', 'feature_value')
-        """
-        for item in observation:
-            self._index.insert(item)
+    # def _update_index(self, observation):
+    #     """
+    #     Update index mapping
+    #     :param observation: iterable of tuples of the form ('feature_name', 'feature_value')
+    #     """
+    #     for item in observation:
+    #         self._index.insert(item)
 
     def get_count(self, item):
         """
