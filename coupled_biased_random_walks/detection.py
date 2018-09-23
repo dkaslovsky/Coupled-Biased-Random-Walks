@@ -31,6 +31,9 @@ class CBRW(object):
         self._counter = ObservationCounter()
         self._stationary_prob = None
         self._feature_relevance = None
+        # store whether the model has been fit; tyoically required after
+        # adding observations and before scoring can take place
+        self._model_fit = False
     
     @property
     def feature_weights(self):
@@ -43,6 +46,8 @@ class CBRW(object):
         taking the form {feature_name: categorical_level/feature_value, ...}
         """
         self._counter.update(observation_iterable)
+        # model must be (re)fit befor scoring
+        self._model_fit = False
 
     def fit(self):
         """
@@ -51,7 +56,7 @@ class CBRW(object):
         # check number of observations added
         n_observed = get_mode(self._counter.n_obs)
         if n_observed == 0:
-            raise ValueError('no observations provided')
+            raise ValueError('must add observations before calling fit method')
 
         # execute biased random walk
         bias_dict = self._compute_biases()
@@ -69,6 +74,8 @@ class CBRW(object):
         # normalizes them to sum to 1, however this sum normalization should not be
         # necessary since sum(pi) = 1 by definition
         self._stationary_prob, self._feature_relevance = stationary_prob, dict(feature_relevance)
+        # model has been fit
+        self._model_fit = True
         return self
 
     def score(self, observation_iterable):
@@ -77,6 +84,10 @@ class CBRW(object):
         :param observation_iterable: iterable of dict observations with each dict
         taking the form {feature_name: feature_value, ...}
         """
+        if not self._model_fit:
+            raise ValueError('must call fit method to train on '
+                             'added observations before scoring')
+        
         if isinstance(observation_iterable, dict):
             observation_iterable = [observation_iterable]
         return np.array([self._score(obs) for obs in observation_iterable])

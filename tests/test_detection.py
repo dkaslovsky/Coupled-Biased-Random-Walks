@@ -113,3 +113,17 @@ class TestCBRW(unittest.TestCase):
         self.assertGreaterEqual(valid_score, 0)
         self.assertLessEqual(valid_score, 1)
         self.assertTrue(isnan(invalid_score))
+
+    def test_score_without_fit(self):
+        to_be_scored = self.observations[0]
+        
+        # test scoring without fit results in error
+        with self.assertRaises(ValueError):
+            _ = self.cbrw.score(to_be_scored)
+
+        # test scoring after new observations added
+        # requires additional fit
+        self.cbrw.fit()
+        self.cbrw.add_observations(self.observations)
+        with self.assertRaises(ValueError):
+            _ = self.cbrw.score(to_be_scored)
