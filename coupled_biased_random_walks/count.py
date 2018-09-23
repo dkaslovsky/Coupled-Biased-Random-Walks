@@ -96,7 +96,6 @@ class ObservationCounter(object):
             obs1, obs2 = tee(iteritems(obs), 2)
             self._update_counts(obs1)
             self._update_joint_counts(obs2)
-            #self._update_index(obs3)
 
     def _update_counts(self, observation):
         """
@@ -116,14 +115,6 @@ class ObservationCounter(object):
         """
         pairs = combinations(sorted(observation), 2)
         self._joint_counts.update(pairs)
-
-    # def _update_index(self, observation):
-    #     """
-    #     Update index mapping
-    #     :param observation: iterable of tuples of the form ('feature_name', 'feature_value')
-    #     """
-    #     for item in observation:
-    #         self._index.insert(item)
 
     def get_count(self, item):
         """
