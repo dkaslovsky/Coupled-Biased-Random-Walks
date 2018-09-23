@@ -52,14 +52,15 @@ class ObservationCounter(object):
     """
     Counts single and joint occurrences of key/value pairs in a dict with
     the intention that an observation of categorical features is represented
-    as a dict of {feature_name: categorical_level/feature_value, ...}
+    as a dict of {feature_name: feature_value, ...}
     """
 
     def __init__(self):
-        # stores count of each feature type observed
+        # stores count of observations for each feature name; somewhat redundant
+        # with self._counts but eliminates the need to iterate and sum
         self.n_obs = Counter()
-        # stores individual counts of features, keyed by feature name and then
-        # by (feature_name, feature_value) tuple
+        # nested dict storing individual counts of features, keyed by feature name
+        # and then by (feature_name, feature_value) tuple
         self._counts = defaultdict(Counter)
         # stores joint counts of features, keyed by (feature_tuple1, feature_tuple2)
         # where each feature tuple takes the form (feature_name, feature_value)
@@ -87,9 +88,9 @@ class ObservationCounter(object):
         if isinstance(observation_iterable, dict):
             observation_iterable = [observation_iterable]
         for observation in observation_iterable:
-            # feature may be present but with value NaN representing a feature not observed 
-            # in the observation (e.g., a missing value is NaN-filled in a pandas DataFrame)
-            # so remove any such features from the observation
+            # feature name with value NaN represents a missing feature in the
+            # observation (e.g., a missing value is NaN-filled in a pandas DataFrame) so
+            # we remove any such features from the observation to avoid including in counts
             obs = {key: value for key, value in iteritems(observation) if not isnan(value)}
             # create 3 iterators
             obs1, obs2, obs3 = tee(iteritems(obs), 3)
@@ -156,7 +157,8 @@ def get_feature_value(feature_tuple):
 
 def get_mode(counter):
     """
-    Helper function to return the most common element from a counter
+    Helper function to return the count of the most common
+    element from an instance of Counter()
     :param counter: collections.Counter instance
     """
     mode = counter.most_common(1)

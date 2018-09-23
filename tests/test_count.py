@@ -6,6 +6,7 @@ from six import iteritems
 
 from coupled_biased_random_walks.count import (IncrementingDict,
                                                ObservationCounter,
+                                               get_feature_name,
                                                get_feature_value, get_mode,
                                                isnan)
 
@@ -273,3 +274,20 @@ class TestGetMode(unittest.TestCase):
         for test_name, test in iteritems(table):
             mode = get_mode(test['counter'])
             self.assertEqual(mode, test['expected'], test_name)
+
+
+class TestFeatureTupleGetters(unittest.TestCase):
+    """
+    Unit tests for feature tuple getters
+    """
+
+    def setUp(self):
+        self.tup = ('feature_name', 'feature_value')
+    
+    def test_get_feature_name(self):
+        feature_name = get_feature_name(self.tup)
+        self.assertEqual(feature_name, 'feature_name')
+
+    def test_get_feature_value(self):
+        feature_value = get_feature_value(self.tup)
+        self.assertEqual(feature_value, 'feature_value')
