@@ -9,7 +9,7 @@ Lightweight Python 2/3 compatible implementation of the Coupled Biased Random Wa
 
 This implementation operates on Python dicts rather than Pandas DataFrames.  This has the advantage of allowing the model to be updated with new observations in a trivial manner and is more efficient in certain aspects.  However, these advantages come at the cost of iterating a (potentially large) dict of observed values more times than might otherwise be necessary using an underlying DataFrame implementation.
 
-If one is working with data previously loaded into a DataFrame, simply use the result of `pandas.DataFrame.to_dict(orient='records')` instead of the DataFrame itself to add observations to the model.
+If one is working with data previously loaded into a DataFrame, simply use the result of `pandas.DataFrame.to_dict(orient='records')` instead of the DataFrame itself to add observations to the model.  Note that because it is common for a DataFrame to fill missing values with `nan`, the detector will ignore features with value `nan` in any observation record.  Therefore, there is no need to further preprocess the DataFrame before using its `to_dict` method to create records.
 
 ### Installation
 This package is not yet hosted on PyPI.  To install:
@@ -24,7 +24,7 @@ Let's run the CBRW detection algorithm on the authors' example data set from the
 
 <img src="./example_table.png" width="400">
 
-This data is saved as a [.CSV file](./data/CBRW_paper_example.csv) in this repository and is loaded into memory as a list of dicts by [example.py](./example.py).  Note that we drop the "Cheat?" column when loading the data, as this is essentially the target variable indicating the anomalous activity to be detected.  The detector is instantiated and observations are added as follows:
+This data is saved as a [.CSV file](./data/CBRW_paper_example.csv) in this repository and is loaded into memory as a list of dicts by [example.py](./example.py).  Note that we drop the `Cheat?` column when loading the data, as this is essentially the target variable indicating the anomalous activity to be detected.  The detector is instantiated and observations are added as follows:
 ```
 >>> detector = CBRW()
 >>> detector.add_observations(observations)
@@ -57,7 +57,7 @@ The entire example can be reproduced by running:
 $ python example.py
 ```
 
-The CBRW algorithm can also be used to calculate feature weights (also referred to as "feature relevance" or "feature importance").  These weights are calculated when the detector is fit, and are used during scoring, but can also be used by any other outlier detection algorithm.  Thus, the CBRW algorithm can be used simply to calculate feature weights and need not score observations.  Feature weights are stored as a property of the detector after the detector's `fit` method has been called:
+The CBRW algorithm can also be used to calculate feature weights.  These weights are calculated when the detector is fit and are used during scoring, but can also be used by any other outlier detection algorithm.  Thus, the CBRW algorithm can be used simply to calculate feature weights and need not score observations.  Feature weights are stored as a property of the detector after the detector's `fit` method has been called:
 ```
 >>> detector = CBRW()
 >>> detector.add_observations(observations)
