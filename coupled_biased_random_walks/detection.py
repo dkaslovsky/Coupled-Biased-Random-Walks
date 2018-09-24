@@ -31,9 +31,9 @@ class CBRW(object):
         self._counter = ObservationCounter()
         self._stationary_prob = None
         self._feature_relevance = None
-        # store whether the model has been fit; tyoically required after
-        # adding observations and before scoring can take place
-        self._model_fit = False
+        # store whether self.fit must be called before scoring
+        # tyoically required after adding observations
+        self._fit_required = True
     
     @property
     def feature_weights(self):
@@ -46,8 +46,8 @@ class CBRW(object):
         taking the form {feature_name: categorical_level/feature_value, ...}
         """
         self._counter.update(observation_iterable)
-        # model must be (re)fit befor scoring
-        self._model_fit = False
+        # must (re)fit befor scoring
+        self._fit_required = True
 
     def fit(self):
         """
@@ -74,8 +74,7 @@ class CBRW(object):
         # normalizes them to sum to 1, however this sum normalization should not be
         # necessary since sum(pi) = 1 by definition
         self._stationary_prob, self._feature_relevance = stationary_prob, dict(feature_relevance)
-        # model has been fit
-        self._model_fit = True
+        self._fit_required = False
         return self
 
     def score(self, observation_iterable):
@@ -84,7 +83,7 @@ class CBRW(object):
         :param observation_iterable: iterable of dict observations with each dict
         taking the form {feature_name: feature_value, ...}
         """
-        if not self._model_fit:
+        if self._fit_required:
             raise CBRWUnfitDataError('must call fit method to train on '
                                      'added observations before scoring')
         
