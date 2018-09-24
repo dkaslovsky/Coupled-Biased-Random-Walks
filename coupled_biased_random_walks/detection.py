@@ -56,7 +56,7 @@ class CBRW(object):
         # check number of observations added
         n_observed = get_mode(self._counter.n_obs)
         if n_observed == 0:
-            raise ValueError('must add observations before calling fit method')
+            raise CBRWNoDataError('must add observations before calling fit method')
 
         # execute biased random walk
         bias_dict = self._compute_biases()
@@ -85,8 +85,8 @@ class CBRW(object):
         taking the form {feature_name: feature_value, ...}
         """
         if not self._model_fit:
-            raise ValueError('must call fit method to train on '
-                             'added observations before scoring')
+            raise CBRWUnfitDataError('must call fit method to train on '
+                                     'added observations before scoring')
         
         if isinstance(observation_iterable, dict):
             observation_iterable = [observation_iterable]
@@ -159,3 +159,13 @@ class CBRW(object):
             bias_dict.update({feature_val: (1 - (count / mode) + base) / 2
                               for feature_val, count in iteritems(value_counts)})
         return bias_dict
+
+
+class CBRWNoDataError(Exception):
+    """ Exception to be raised when fitting with no data """
+    pass
+
+
+class CBRWUnfitDataError(Exception):
+    """ Exception to be raised when score is called without fit """
+    pass
