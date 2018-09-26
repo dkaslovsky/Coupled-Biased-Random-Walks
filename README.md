@@ -63,7 +63,8 @@ The CBRW algorithm can also be used to calculate feature weights.  These weights
 >>> detector.add_observations(observations)
 >>> detector.fit()
 >>> detector.feature_weights
-
+```
+```
 {'Education': 0.26272841835358907,
  'Gender': 0.16078750024987953,
  'Income': 0.2938981973816106,
