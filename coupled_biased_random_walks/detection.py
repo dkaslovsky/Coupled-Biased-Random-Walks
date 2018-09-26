@@ -22,11 +22,16 @@ class CBRW(object):
         'max_iter': 100    # max number of steps to take
     }
 
-    def __init__(self, rw_params=None):
+    def __init__(self, rw_params=None, ignore_unknown=False):
         """
         :param rw_params: random walk parameters to override defaults
+        :param ignore_unknown: if True, score an observation containing unknown feature names
+        or values based only on features seen during training; if False, score such an observation
+        as nan (default)
         """
         self.rw_params = rw_params if rw_params else self.PRESET_RW_PARAMS
+        self._unknown_node_score = 0 if ignore_unknown else np.nan
+
         self._counter = ObservationCounter()
         self._stationary_prob = None
         self._feature_relevance = None
@@ -96,7 +101,7 @@ class CBRW(object):
         Getter for the probability of a feature value
         :param node_name: tuple of the form (feature_name, feature_value)
         """
-        return self._stationary_prob.get(node_name, np.nan)
+        return self._stationary_prob.get(node_name, self._unknown_node_score)
 
     def _get_feature_relevance(self, feature_tuple):
         """

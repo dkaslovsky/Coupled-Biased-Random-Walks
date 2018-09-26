@@ -70,6 +70,10 @@ class TestCBRW(unittest.TestCase):
         self.assertIsNotNone(self.cbrw._stationary_prob)
         self.assertIsNotNone(self.cbrw._feature_relevance)
 
+    def test_score_before_fit(self):
+        with self.assertRaises(ValueError):
+            _ = self.cbrw.score(self.observations)
+    
     def test_score(self):
         self.cbrw.fit()
 
@@ -80,6 +84,9 @@ class TestCBRW(unittest.TestCase):
         score = score[0]
         self.assertGreaterEqual(score, 0)
         self.assertLessEqual(score, 1)
+
+    def test_score_unknown_features_default(self):
+        self.cbrw.fit()
 
         # score observation where all features but not all
         # values have been previously observed
@@ -114,6 +121,50 @@ class TestCBRW(unittest.TestCase):
         self.assertLessEqual(valid_score, 1)
         self.assertTrue(isnan(invalid_score))
 
-    def test_score_before_fit(self):
-        with self.assertRaises(ValueError):
-            _ = self.cbrw.score(self.observations)
+    def test_score_unknown_features_ignore(self):
+        self.cbrw = CBRW(ignore_unknown=True)
+        self.cbrw.add_observations(self.observations)
+        self.cbrw.fit()
+
+        # score observation where all features but not all
+        # values have been previously observed
+        to_be_scored = {
+            'feature_a': 'a_val_x',
+            'feature_b': 'b_val_1',
+            'feature_c': 'c_val_1'
+        }
+        actually_scored = {
+            'feature_b': 'b_val_1',
+            'feature_c': 'c_val_1'
+        }
+        score = self.cbrw.score(to_be_scored)
+        actual_score = self.cbrw.score(actually_scored)
+        self.assertFalse(isnan(score[0]))
+        self.assertEqual(score, actual_score)
+
+        # score observation where a feature has not
+        # been previously observed
+        to_be_scored = {
+            'feature_x': 'x_val_x',
+            'feature_b': 'b_val_1',
+            'feature_c': 'c_val_1'
+        }
+        actually_scored = {
+            'feature_b': 'b_val_1',
+            'feature_c': 'c_val_1'
+        }
+        score = self.cbrw.score(to_be_scored)
+        actual_score = self.cbrw.score(actually_scored)
+        self.assertFalse(isnan(score[0]))
+        self.assertEqual(score, actual_score)
+        
+        # score observation where all features not
+        # previously observed
+        to_be_scored = {
+            'feature_x': 'x_val_x',
+            'feature_y': 'y_val_1',
+            'feature_z': 'z_val_1'
+        }
+        score = self.cbrw.score(to_be_scored)
+        self.assertFalse(isnan(score[0]))
+        self.assertEqual(score[0], 0)
