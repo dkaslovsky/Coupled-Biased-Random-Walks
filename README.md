@@ -74,7 +74,8 @@ For the example data, the computed feature weights are
 
 ### Implementation Notes
 - For efficiency, the detector state is only (re)computed upon calling `.fit()`.  Therefore adding new observations (`.add_observations()`) will not affect scoring until `.fit()` is called.  Refitting overwrites previous state but includes contribution from all added observations.
-- The `.add_observations()` and `.fit()` methods can be chained together if one-line training is desired: `detector.add_observations(observations).fit()`
+- The `.add_observations()` and `.fit()` methods can be chained together if one-line training is desired: `detector.add_observations(observations).fit()`.
+- An observation containing a feature name or feature value that has not been previously fit will be scored as `nan`.  The option to ignore any such "new" features and score an observation based on known features is forthcoming.
 
 ### Tests
 To run unit tests:
