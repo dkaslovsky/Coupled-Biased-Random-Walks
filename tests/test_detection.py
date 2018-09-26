@@ -113,3 +113,7 @@ class TestCBRW(unittest.TestCase):
         self.assertGreaterEqual(valid_score, 0)
         self.assertLessEqual(valid_score, 1)
         self.assertTrue(isnan(invalid_score))
+
+    def test_score_before_fit(self):
+        with self.assertRaises(ValueError):
+            _ = self.cbrw.score(self.observations)

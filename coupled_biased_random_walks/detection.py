@@ -24,7 +24,6 @@ class CBRW(object):
 
     def __init__(self, rw_params=None):
         """
-
         :param rw_params: random walk parameters to override defaults
         """
         self.rw_params = rw_params if rw_params else self.PRESET_RW_PARAMS
@@ -77,6 +76,8 @@ class CBRW(object):
         :param observation_iterable: iterable of dict observations with each dict
         taking the form {feature_name: feature_value, ...}
         """
+        if not (self._feature_relevance and self._stationary_prob):
+            raise ValueError('must call fit method to train on added observations before scoring')
         if isinstance(observation_iterable, dict):
             observation_iterable = [observation_iterable]
         return np.array([self._score(obs) for obs in observation_iterable])
