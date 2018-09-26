@@ -64,12 +64,17 @@ The CBRW algorithm can also be used to calculate feature weights.  These weights
 >>> detector.fit()
 >>> detector.feature_weights
 ```
+For the example data, the computed feature weights are
 ```
 {'Education': 0.26272841835358907,
  'Gender': 0.16078750024987953,
  'Income': 0.2938981973816106,
  'Marriage': 0.2825858840149206}
 ```
+
+### Implementation Notes
+- For efficiency, the detector state is only (re)computed upon calling `.fit()`.  Therefore adding new observations (`.add_observations()`) will not affect scoring until `.fit()` is called.  Refitting overwrites previous state but includes contribution from all added observations.
+- The `.add_observations()` and `.fit()` methods can be chained together if one-line training is desired: `detector.add_observations(observations).fit()`
 
 ### Tests
 To run unit tests:
