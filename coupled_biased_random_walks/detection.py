@@ -42,6 +42,7 @@ class CBRW(object):
         taking the form {feature_name: categorical_level/feature_value, ...}
         """
         self._counter.update(observation_iterable)
+        return self
 
     def fit(self):
         """
