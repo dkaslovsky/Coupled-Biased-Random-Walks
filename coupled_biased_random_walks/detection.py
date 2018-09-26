@@ -31,9 +31,6 @@ class CBRW(object):
         self._counter = ObservationCounter()
         self._stationary_prob = None
         self._feature_relevance = None
-        # store whether self.fit must be called before scoring
-        # tyoically required after adding observations
-        self._fit_required = True
     
     @property
     def feature_weights(self):
@@ -46,8 +43,6 @@ class CBRW(object):
         taking the form {feature_name: categorical_level/feature_value, ...}
         """
         self._counter.update(observation_iterable)
-        # must (re)fit befor scoring
-        self._fit_required = True
 
     def fit(self):
         """
@@ -56,7 +51,7 @@ class CBRW(object):
         # check number of observations added
         n_observed = get_mode(self._counter.n_obs)
         if n_observed == 0:
-            raise CBRWNoDataError('must add observations before calling fit method')
+            raise ValueError('no observations provided')
 
         # execute biased random walk
         bias_dict = self._compute_biases()
@@ -74,7 +69,6 @@ class CBRW(object):
         # normalizes them to sum to 1, however this sum normalization should not be
         # necessary since sum(pi) = 1 by definition
         self._stationary_prob, self._feature_relevance = stationary_prob, dict(feature_relevance)
-        self._fit_required = False
         return self
 
     def score(self, observation_iterable):
@@ -83,10 +77,6 @@ class CBRW(object):
         :param observation_iterable: iterable of dict observations with each dict
         taking the form {feature_name: feature_value, ...}
         """
-        if self._fit_required:
-            raise CBRWUnfitDataError('must call fit method to train on '
-                                     'added observations before scoring')
-        
         if isinstance(observation_iterable, dict):
             observation_iterable = [observation_iterable]
         return np.array([self._score(obs) for obs in observation_iterable])
@@ -158,13 +148,3 @@ class CBRW(object):
             bias_dict.update({feature_val: (1 - (count / mode) + base) / 2
                               for feature_val, count in iteritems(value_counts)})
         return bias_dict
-
-
-class CBRWNoDataError(Exception):
-    """ Exception to be raised when fitting with no data """
-    pass
-
-
-class CBRWUnfitDataError(Exception):
-    """ Exception to be raised when score is called without fit """
-    pass

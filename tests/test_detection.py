@@ -3,8 +3,7 @@ import unittest
 from scipy.sparse import csr_matrix
 
 from coupled_biased_random_walks.count import isnan
-from coupled_biased_random_walks.detection import (CBRW, CBRWNoDataError,
-                                                   CBRWUnfitDataError)
+from coupled_biased_random_walks.detection import CBRW
 
 
 class TestCBRW(unittest.TestCase):
@@ -63,7 +62,7 @@ class TestCBRW(unittest.TestCase):
 
     def test_fit_no_data(self):
         cbrw = CBRW()
-        with self.assertRaises(CBRWNoDataError):
+        with self.assertRaises(ValueError):
             cbrw.fit()
     
     def test_fit(self):
@@ -114,17 +113,3 @@ class TestCBRW(unittest.TestCase):
         self.assertGreaterEqual(valid_score, 0)
         self.assertLessEqual(valid_score, 1)
         self.assertTrue(isnan(invalid_score))
-
-    def test_score_without_fit(self):
-        to_be_scored = self.observations[0]
-        
-        # test scoring without fit results in error
-        with self.assertRaises(CBRWUnfitDataError):
-            _ = self.cbrw.score(to_be_scored)
-
-        # test scoring after new observations added
-        # requires additional fit
-        self.cbrw.fit()
-        self.cbrw.add_observations(self.observations)
-        with self.assertRaises(CBRWUnfitDataError):
-            _ = self.cbrw.score(to_be_scored)
