@@ -30,7 +30,7 @@ class CBRW(object):
         as nan (default)
         """
         self.rw_params = rw_params if rw_params else self.PRESET_RW_PARAMS
-        self._unknown_node_score = 0 if ignore_unknown else np.nan
+        self._unknown_feature_score = 0 if ignore_unknown else np.nan
 
         self._counter = ObservationCounter()
         self._stationary_prob = None
@@ -59,8 +59,7 @@ class CBRW(object):
             raise ValueError('no observations provided')
 
         # execute biased random walk
-        bias_dict = self._compute_biases()
-        transition_matrix = self._compute_biased_transition_matrix(bias_dict)
+        transition_matrix = self._compute_biased_transition_matrix()
         pi = random_walk(transition_matrix, **self.rw_params).ravel()
 
         stationary_prob = {}
@@ -94,15 +93,9 @@ class CBRW(object):
         Computes the weighted anomaly score for an observation
         :param observation: dict of the form {feature_name: feature_value, ...}
         """
-        return sum(self._get_feature_relevance(item) * self._get_node_score(item)
-                   for item in iteritems(observation))
-
-    def _get_node_score(self, node_name):
-        """
-        Getter for the probability of a feature value
-        :param node_name: tuple of the form (feature_name, feature_value)
-        """
-        return self._stationary_prob.get(node_name, self._unknown_node_score)
+        return sum(self._get_feature_relevance(item) * \
+                   self._stationary_prob.get(item, self._unknown_feature_score)
+                    for item in iteritems(observation))
 
     def _get_feature_relevance(self, feature_tuple):
         """
@@ -111,14 +104,16 @@ class CBRW(object):
         """
         feature_name = get_feature_name(feature_tuple)
         return self._feature_relevance.get(feature_name, 0)
-
-    def _compute_biased_transition_matrix(self, bias_dict):
+    
+    def _compute_biased_transition_matrix(self):
         """
         Computes biased probability transition matrix of conditional probabilities
-        :param bias_dict: dict mapping feature tuple to its associated bias
         """
         idx = []
         prob = []
+        
+        bias_dict = self._compute_biases()
+        
         for (symbol1, symbol2), joint_count in iteritems(self._counter.joint_counts):
 
             # get index for symbols

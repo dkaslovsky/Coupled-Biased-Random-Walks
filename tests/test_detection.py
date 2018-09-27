@@ -20,17 +20,6 @@ class TestCBRW(unittest.TestCase):
         self.cbrw = CBRW()
         self.cbrw.add_observations(self.observations)
 
-    def test_get_node_score(self):
-        self.cbrw._stationary_prob = {
-            ('feature_a', 'a_val_1'): 0.25
-        }
-        # get score for valid node
-        valid_node_score = self.cbrw._get_node_score(('feature_a', 'a_val_1'))
-        self.assertEqual(valid_node_score, 0.25)
-        # get score for invalid node - should return nan
-        invalid_node_score = self.cbrw._get_node_score(('feature_a', 'xxx'))
-        self.assertTrue(isnan(invalid_node_score))
-
     def test_get_feature_relevance(self):
         self.cbrw._feature_relevance = {
             'feature_a': 0.5
@@ -53,11 +42,10 @@ class TestCBRW(unittest.TestCase):
         self.assertEqual(bias_dict[('feature_c', 'c_val_2')], 0.25)
 
     def test_compute_biased_transition_matrix(self):
-        bias_dict = self.cbrw._compute_biases()
-        transition_matrix = self.cbrw._compute_biased_transition_matrix(bias_dict)
+        transition_matrix = self.cbrw._compute_biased_transition_matrix()
         self.assertIsInstance(transition_matrix, csr_matrix)
         self.assertTupleEqual(transition_matrix.shape, (4, 4))
-        self.assertTrue((0 < transition_matrix.data).all())
+        self.assertTrue((transition_matrix.data > 0).all())
         self.assertTrue((transition_matrix.data <= 1).all())
 
     def test_fit_no_data(self):
