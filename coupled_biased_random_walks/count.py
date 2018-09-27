@@ -122,11 +122,10 @@ class ObservationCounter(object):
         :param item: tuple of the form ('feature_name', 'feature_value')
         """
         feature_name = get_feature_name(item)
-        try:
-            return self._counts.get(feature_name)[item]
-        except TypeError:
-            # feature_name is not in self._counts
+        feature_counts = self._counts.get(feature_name)
+        if feature_counts is None:
             return 0
+        return feature_counts.get(item, 0)
 
 
 # Helper functions
@@ -156,6 +155,8 @@ def get_mode(counter):
     mode = counter.most_common(1)
     if not mode:
         return 0
+    # if mode is not empty it will be a list containing a
+    # single tuple from which we want the second element
     return mode[0][1]
 
 

@@ -66,14 +66,15 @@ class CBRW(object):
         stationary_prob = {}
         feature_relevance = defaultdict(int)
 
-        for feature_val, idx in iteritems(self._counter.index):
+        for feature, idx in iteritems(self._counter.index):
             prob = pi[idx]
-            stationary_prob[feature_val] = prob
-            feature_relevance[get_feature_name(feature_val)] += prob
+            stationary_prob[feature] = prob
+            feature_relevance[get_feature_name(feature)] += prob
         # feature relevance scores are to be used as weights; accordingly the paper
         # normalizes them to sum to 1, however this sum normalization should not be
         # necessary since sum(pi) = 1 by definition
-        self._stationary_prob, self._feature_relevance = stationary_prob, dict(feature_relevance)
+        self._stationary_prob = stationary_prob
+        self._feature_relevance = dict(feature_relevance)
         return self
 
     def score(self, observation_iterable):
