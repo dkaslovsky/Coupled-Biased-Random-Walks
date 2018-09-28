@@ -56,7 +56,7 @@ class CBRW(object):
         # check number of observations added
         n_observed = get_mode(self._counter.n_obs)
         if n_observed == 0:
-            raise ValueError('no observations provided')
+            raise CBRWFitError()
 
         # execute biased random walk
         transition_matrix = self._compute_biased_transition_matrix()
@@ -83,7 +83,7 @@ class CBRW(object):
         taking the form {feature_name: feature_value, ...}
         """
         if not (self._feature_relevance and self._stationary_prob):
-            raise ValueError('must call fit method to train on added observations before scoring')
+            raise CBRWScoreError()
         if isinstance(observation_iterable, dict):
             observation_iterable = [observation_iterable]
         return np.array([self._score(obs) for obs in observation_iterable])
@@ -151,3 +151,19 @@ class CBRW(object):
             bias_dict.update({feature_val: (1 - (count / mode) + base) / 2
                               for feature_val, count in iteritems(value_counts)})
         return bias_dict
+
+
+class CBRWFitError(Exception):
+    
+    message = 'must add observations before calling fit method'
+    
+    def __str__(self):
+        return self.message
+
+
+class CBRWScoreError(Exception):
+
+    message = 'must call fit method to train on added observations before scoring'
+    
+    def __str__(self):
+        return self.message

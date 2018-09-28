@@ -3,7 +3,8 @@ import unittest
 from scipy.sparse import csr_matrix
 
 from coupled_biased_random_walks.count import isnan
-from coupled_biased_random_walks.detect import CBRW
+from coupled_biased_random_walks.detect import (CBRW, CBRWFitError,
+                                                CBRWScoreError)
 
 
 class TestCBRW(unittest.TestCase):
@@ -50,7 +51,7 @@ class TestCBRW(unittest.TestCase):
 
     def test_fit_no_data(self):
         cbrw = CBRW()
-        with self.assertRaises(ValueError):
+        with self.assertRaises(CBRWFitError):
             cbrw.fit()
     
     def test_fit(self):
@@ -59,7 +60,7 @@ class TestCBRW(unittest.TestCase):
         self.assertIsNotNone(self.cbrw._feature_relevance)
 
     def test_score_before_fit(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(CBRWScoreError):
             _ = self.cbrw.score(self.observations)
     
     def test_score(self):
