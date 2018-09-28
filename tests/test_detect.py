@@ -3,7 +3,7 @@ import unittest
 from scipy.sparse import csr_matrix
 
 from coupled_biased_random_walks.count import isnan
-from coupled_biased_random_walks.detection import CBRW
+from coupled_biased_random_walks.detect import CBRW
 
 
 class TestCBRW(unittest.TestCase):
