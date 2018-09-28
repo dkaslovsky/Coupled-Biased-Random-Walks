@@ -97,6 +97,20 @@ class ObservationCounter(object):
             self._update_counts(obs1)
             self._update_joint_counts(obs2)
 
+    def get_count(self, item):
+        """
+        Getter to safely retrieve count from interal data structure of defaultdict(Counter)
+        :param item: tuple of the form ('feature_name', 'feature_value')
+        """
+        feature_name = get_feature_name(item)
+        feature_counts = self._counts.get(feature_name)
+        try:
+            return feature_counts.get(item, 0)
+        except AttributeError:
+            # AttributeError raised when feature_counts is None
+            # meaning there is no count for the feature_name
+            return 0
+    
     def _update_counts(self, observation):
         """
         Update single counts
@@ -115,17 +129,6 @@ class ObservationCounter(object):
         """
         pairs = combinations(sorted(observation), 2)
         self._joint_counts.update(pairs)
-
-    def get_count(self, item):
-        """
-        Getter to safely retrieve count from interal data structure of defaultdict(Counter)
-        :param item: tuple of the form ('feature_name', 'feature_value')
-        """
-        feature_name = get_feature_name(item)
-        feature_counts = self._counts.get(feature_name)
-        if feature_counts is None:
-            return 0
-        return feature_counts.get(item, 0)
 
 
 # Helper functions
