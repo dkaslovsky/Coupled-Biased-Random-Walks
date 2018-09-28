@@ -1,6 +1,6 @@
 from six.moves import zip
 
-from coupled_biased_random_walks.detection import CBRW
+from coupled_biased_random_walks import CBRW
 from data.loading import load_from_csv
 
 
