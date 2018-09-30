@@ -50,9 +50,9 @@ class TestCBRW(unittest.TestCase):
         self.assertTrue((transition_matrix.data <= 1).all())
 
     def test_fit_no_data(self):
-        cbrw = CBRW()
+        self.cbrw = CBRW()
         with self.assertRaises(CBRWFitError):
-            cbrw.fit()
+            self.cbrw.fit()
     
     def test_fit(self):
         self.cbrw.fit()

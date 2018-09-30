@@ -82,25 +82,31 @@ class TestObservationCounter(unittest.TestCase):
         self.assertSetEqual(set(self.oc.index.keys()), self.all_index_keys)
 
         # test counts
-        # feature a
-        feature_a_counts = self.oc.counts['feature_a']
-        expected_a_items = [
-            (('feature_a', 'a_val_1'), 2)
-        ]
-        self.assertListEqual(list(feature_a_counts.items()), expected_a_items)
-        # feature b
-        feature_b_counts = self.oc.counts['feature_b']
-        expected_b_items = [
-            (('feature_b', 'b_val_1'), 2)
-        ]
-        self.assertListEqual(list(feature_b_counts.items()), expected_b_items)
-        # feature c
-        feature_c_counts = self.oc.counts['feature_c']
-        expected_c_items = [
-            (('feature_c', 'c_val_1'), 1),
-            (('feature_c', 'c_val_2'), 1)
-        ]
-        self.assertListEqual(list(feature_c_counts.items()), expected_c_items)
+        table = {
+            'feature_a': {
+                'expected':
+                    [
+                        (('feature_a', 'a_val_1'), 2)
+                    ]
+            },
+            'feature_b': {
+                'expected':
+                    [
+                        (('feature_b', 'b_val_1'), 2)
+                    ]
+            },
+            'feature_c': {
+                'expected':
+                    [
+                        (('feature_c', 'c_val_1'), 1),
+                        (('feature_c', 'c_val_2'), 1)
+                    ]
+            }
+        }
+        for feature, test in iteritems(table):
+            counts = self.oc.counts[feature]
+            expected = test['expected']
+            self.assertListEqual(list(counts.items()), expected, feature)
 
         # test joint_counts
         expected_joint_counts = {
@@ -111,7 +117,6 @@ class TestObservationCounter(unittest.TestCase):
             (('feature_b', 'b_val_1'), ('feature_c', 'c_val_2')): 1,
         }
         self.assertDictEqual(self.oc.joint_counts, expected_joint_counts)
-
 
     def test_get_count(self):
         table = {
@@ -173,24 +178,33 @@ class TestObservationCounterWithMissingData(unittest.TestCase):
         self.assertSetEqual(set(self.oc.index.keys()), self.all_index_keys)
 
         # test counts
-        # feature a
-        feature_a_counts = self.oc.counts['feature_a']
-        expected_a_items = [
-            (('feature_a', 'a_val_1'), 2)
-        ]
-        self.assertListEqual(list(feature_a_counts.items()), expected_a_items)
-        # feature b
-        feature_b_counts = self.oc.counts['feature_b']
-        expected_b_items = [
-            (('feature_b', 'b_val_1'), 1)
-        ]
-        self.assertListEqual(list(feature_b_counts.items()), expected_b_items)
-        # feature c
-        feature_c_counts = self.oc.counts['feature_c']
-        expected_c_items = [
-            (('feature_c', 'c_val_2'), 1)
-        ]
-        self.assertListEqual(list(feature_c_counts.items()), expected_c_items)
+        table = {
+            'feature_a': {
+                'expected':
+                    [
+                        (('feature_a', 'a_val_1'), 2)
+                    ]
+            },
+            'feature_b': {
+                'expected':
+                    [
+                        (('feature_b', 'b_val_1'), 1)
+                    ]
+            },
+            'feature_c': {
+                'expected':
+                    [
+                        (('feature_c', 'c_val_2'), 1)
+                    ]
+            },
+            'feature_d': {
+                'expected': []
+            }
+        }
+        for feature, test in iteritems(table):
+            counts = self.oc.counts.get(feature, {})
+            expected = test['expected']
+            self.assertListEqual(list(counts.items()), expected, feature)
 
         # test joint_counts
         expected_joint_counts = {
