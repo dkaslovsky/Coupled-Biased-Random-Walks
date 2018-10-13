@@ -30,6 +30,23 @@ def random_walk(transition_matrix, alpha, err_tol, max_iter):
     return pi
 
 
+def dict_to_csr_matrix(data_dict, shape):
+    """
+    Converts dict of index -> value to csr_matrix
+    :param data_dict: dict mapping matrix index tuple to corresponding matrix value
+    :param shape: (row, col) tuple for shape of csr_matrix (also accepts int when row = col)
+    """
+    if not data_dict:
+        raise ValueError('dict must not be empty')
+
+    if isinstance(shape, int):
+        shape = (shape, shape)
+    # csr_matrix cannot accept iterators so cast to lists for python 3
+    data = list(data_dict.values())
+    idx = zip(*list(data_dict.keys()))
+    return csr_matrix((data, idx), shape=shape)
+
+
 def row_normalize_csr_matrix(matrix):
     """
     Row normalize a csr matrix without mutating the input

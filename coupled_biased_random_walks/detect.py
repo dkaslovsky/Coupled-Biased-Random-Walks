@@ -9,7 +9,8 @@ from six.moves import zip
 
 from coupled_biased_random_walks.count import (ObservationCounter,
                                                get_feature_name, get_mode)
-from coupled_biased_random_walks.matrix import (random_walk,
+from coupled_biased_random_walks.matrix import (dict_to_csr_matrix,
+                                                random_walk,
                                                 row_normalize_csr_matrix)
 
 
@@ -138,11 +139,8 @@ class CBRW(object):
             raise CBRWFitError('all biased joint probabilities are zero')
         
         # construct sparse matrix
-        # csr_matrix cannot accept iterators so cast to list for python 3
-        data = list(prob_idx.values())
-        idx = zip(*list(prob_idx.keys()))
-        shape = len(self._counter.index)
-        trans_matrix = csr_matrix((data, idx), shape=(shape, shape))
+        n_features = len(self._counter.index)
+        trans_matrix = dict_to_csr_matrix(prob_idx, shape=n_features)
         return row_normalize_csr_matrix(trans_matrix)
 
     def _compute_biases(self):
