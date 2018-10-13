@@ -56,7 +56,7 @@ class CBRW(object):
         # check number of observations added
         n_observed = get_mode(self._counter.n_obs)
         if n_observed == 0:
-            raise CBRWFitError()
+            raise CBRWFitError('must add observations before calling fit method')
 
         # execute biased random walk
         transition_matrix = self._compute_biased_transition_matrix()
@@ -109,35 +109,36 @@ class CBRW(object):
         """
         Computes biased probability transition matrix of conditional probabilities
         """
-        idx = []
-        prob = []
+        prob_idx = {}
         
         bias_dict = self._compute_biases()
         
-        for (symbol1, symbol2), joint_count in iteritems(self._counter.joint_counts):
+        for (feature1, feature2), joint_count in iteritems(self._counter.joint_counts):
 
-            # get index for symbols
-            symb1_idx = self._counter.index[symbol1]
-            symb2_idx = self._counter.index[symbol2]
+            # get index for features
+            feature1_idx = self._counter.index[feature1]
+            feature2_idx = self._counter.index[feature2]
 
-            # get individual counts for symbols
-            symb1_count = self._counter.get_count(symbol1)
-            symb2_count = self._counter.get_count(symbol2)
+            # get individual counts for features
+            feature1_count = self._counter.get_count(feature1)
+            feature2_count = self._counter.get_count(feature2)
 
-            # p(symb1 | symb2)
-            p =  bias_dict[symbol2] * joint_count / symb2_count
+            # p(feature1 | feature2)
+            p = bias_dict[feature2] * joint_count / feature2_count
             if p > 0:
-                prob.append(p)
-                idx.append((symb1_idx, symb2_idx))
+                prob_idx[(feature1_idx, feature2_idx)] = p
 
-            # p(symb2 | symb1)
-            p = bias_dict[symbol1] * joint_count / symb1_count
+            # p(feature2 | feature1)
+            p = bias_dict[feature1] * joint_count / feature1_count
             if p > 0:
-                prob.append(p)
-                idx.append((symb2_idx, symb1_idx))
+                prob_idx[(feature2_idx, feature1_idx)] = p
 
-        n_symb = len(self._counter.index)
-        trans_matrix = csr_matrix((prob, zip(*idx)), shape=(n_symb, n_symb))
+        # raise exception on empty probability-index dict
+        if not prob_idx:
+            raise CBRWFitError('all biased joint probabilities are zero')
+        
+        shape = len(self._counter.index)
+        trans_matrix = csr_matrix((prob_idx.values(), zip(*prob_idx.keys())), shape=(shape, shape))
         return row_normalize_csr_matrix(trans_matrix)
 
     def _compute_biases(self):
@@ -154,11 +155,7 @@ class CBRW(object):
 
 
 class CBRWFitError(Exception):
-    
-    message = 'must add observations before calling fit method'
-    
-    def __str__(self):
-        return self.message
+    pass
 
 
 class CBRWScoreError(Exception):
