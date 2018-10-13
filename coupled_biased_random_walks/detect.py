@@ -137,8 +137,12 @@ class CBRW(object):
         if not prob_idx:
             raise CBRWFitError('all biased joint probabilities are zero')
         
+        # construct sparse matrix
+        # csr_matrix cannot accept iterators so cast to list for python 3
+        data = list(prob_idx.values())
+        idx = zip(*list(prob_idx.keys()))
         shape = len(self._counter.index)
-        trans_matrix = csr_matrix((prob_idx.values(), zip(*prob_idx.keys())), shape=(shape, shape))
+        trans_matrix = csr_matrix((data, idx), shape=(shape, shape))
         return row_normalize_csr_matrix(trans_matrix)
 
     def _compute_biases(self):
