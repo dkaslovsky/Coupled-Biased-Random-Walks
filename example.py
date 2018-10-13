@@ -1,10 +1,14 @@
+import os
+
 from six.moves import zip
 
 from coupled_biased_random_walks import CBRW
 from data.loading import load_from_csv
 
 
-DATA_PATH = './data/CBRW_paper_example.csv'
+file_dir = os.path.abspath(os.path.dirname(__file__))
+
+DATA_PATH = os.path.join(file_dir, 'data', 'CBRW_paper_example.csv')
 EXCLUDE_COLS = ['Cheat?']
 
 
