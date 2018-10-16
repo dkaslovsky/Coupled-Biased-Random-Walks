@@ -1,27 +1,35 @@
-from distutils.core import setup
-
-from os import path
-from io import open
+from setuptools import setup
 
 
-this_directory = path.abspath(path.dirname(__file__))
-
-with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
+with open('README.md') as f:
     long_description = f.read()
 
-with open(path.join(this_directory, 'requirements.txt'), encoding='utf-8') as f:
+with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
 
 setup(
     name='coupled_biased_random_walks',
-    version='0.1',
-    packages=['coupled_biased_random_walks'],
-    license='MIT',
+    version='1.0.0',
     author='Daniel Kaslovsky',
     author_email='dkaslovsky@gmail.com',
+    license='MIT',
     description='Outlier detection for categorical data',
     long_description=long_description,
+    long_description_content_type="text/markdown",
+    packages=['coupled_biased_random_walks'],
+    install_requires=requirements,
+    url='https://github.com/dkaslovsky/Coupled-Biased-Random-Walks',
     keywords=['anomaly detection, outlier detection', 'categorical data', 'random walk'],
-    install_requires=requirements
+    classifiers=[
+        'Environment :: Console',
+        'License :: OSI Approved :: MIT License',
+        'Natural Language :: English',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+    ]
 )
