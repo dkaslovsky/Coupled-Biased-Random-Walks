@@ -14,7 +14,7 @@ If one is working with data previously loaded into a DataFrame, simply use the r
 ### Installation
 This package is hosted on PyPI and can be installed via `pip`:
 ```
-pip install coupled_biased_random_walks
+$ pip install coupled_biased_random_walks
 ```
 To instead install from source:
 ```
