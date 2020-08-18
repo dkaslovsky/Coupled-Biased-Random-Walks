@@ -3,7 +3,7 @@ import os
 from six.moves import zip
 
 #from coupled_biased_random_walks import CBRW
-from coupled_biased_random_walks.detect import CBRW
+from coupled_biased_random_walks import CBRW
 from data.loading import load_from_csv
 
 
@@ -23,14 +23,13 @@ if __name__ == '__main__':
 
     # fit and score data
     detector.fit()
-    print('Feature weights: ', detector.feature_weights)
-    print()
+    print('Feature weights:\n{}\n'.format(detector.feature_weights))
+    
     scores = detector.score(data)
     # print scores and observations
     for score, datum in zip(scores, data):
         print('Score: {} | Data: {}'.format(round(score, 4), datum))
 
-    print()
-    print('Scores: ', scores)
-    print()
-    print('Value scores per attribute: ', detector.value_scores(data))
+    print('\nValue scores per attribute:')
+    for i, value_score in enumerate(detector.value_scores(data)):
+        print('Observation {}: {}'.format(i, value_score))
