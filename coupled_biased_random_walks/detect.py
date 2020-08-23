@@ -3,9 +3,7 @@ from __future__ import division
 from collections import defaultdict
 
 import numpy as np
-from scipy.sparse import csr_matrix
 from six import iteritems
-from six.moves import zip
 
 from coupled_biased_random_walks.count import (ObservationCounter,
                                                get_feature_name, get_mode)
@@ -36,7 +34,7 @@ class CBRW(object):
         self._counter = ObservationCounter()
         self._stationary_prob = None
         self._feature_relevance = None
-    
+
     @property
     def feature_weights(self):
         return self._feature_relevance
@@ -120,8 +118,8 @@ class CBRW(object):
         value_scores = []
         for item in iteritems(observation):
             score_keys.append(get_feature_name(item))
-            value_scores.append(self._get_feature_relevance(item) * \
-                               self._stationary_prob.get(item, self._unknown_feature_score))
+            value_scores.append(self._get_feature_relevance(item) *
+                                self._stationary_prob.get(item, self._unknown_feature_score))
         return dict(zip(score_keys, value_scores))
 
     def _get_feature_relevance(self, feature_tuple):
@@ -131,15 +129,15 @@ class CBRW(object):
         """
         feature_name = get_feature_name(feature_tuple)
         return self._feature_relevance.get(feature_name, 0)
-    
+
     def _compute_biased_transition_matrix(self):
         """
         Computes biased probability transition matrix of conditional probabilities
         """
         prob_idx = {}
-        
+
         bias_dict = self._compute_biases()
-        
+
         for (feature1, feature2), joint_count in iteritems(self._counter.joint_counts):
 
             # get index for features
@@ -163,7 +161,7 @@ class CBRW(object):
         # raise exception on empty probability-index dict
         if not prob_idx:
             raise CBRWFitError('all biased joint probabilities are zero')
-        
+
         # construct sparse matrix
         n_features = len(self._counter.index)
         trans_matrix = dict_to_csr_matrix(prob_idx, shape=n_features)
@@ -189,6 +187,6 @@ class CBRWFitError(Exception):
 class CBRWScoreError(Exception):
 
     message = 'must call fit method to train on added observations before scoring'
-    
+
     def __str__(self):
         return self.message

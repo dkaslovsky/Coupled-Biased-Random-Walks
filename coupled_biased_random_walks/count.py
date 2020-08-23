@@ -110,7 +110,7 @@ class ObservationCounter(object):
             # AttributeError raised when feature_counts is None
             # meaning there is no count for the feature_name
             return 0
-    
+
     def _update_counts(self, observation):
         """
         Update single counts

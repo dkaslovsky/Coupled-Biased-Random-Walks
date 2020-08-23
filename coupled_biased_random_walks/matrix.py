@@ -53,9 +53,7 @@ def row_normalize_csr_matrix(matrix):
     :param matrix: scipy.sparse.csr_matrix instance
     """
     if not isinstance(matrix, csr_matrix):
-        input_type = matrix.__class__.__name__
-        expected_type = csr_matrix.__class__.__name__
-        raise TypeError('expected input of type {}, received input of type{}'.format(expected_type, input_type))
+        raise TypeError('expected input to be a scipy csr_matrix')
     if any(matrix.data == 0):
         raise ValueError('input must be scipy.sparse.csr_matrix and must not store zeros')
     # get row index for every nonzero element in matrix
