@@ -91,12 +91,38 @@ class CBRW(object):
 
     def _score(self, observation):
         """
-        Computes the weighted anomaly score for an observation
+        Computes the weighted anomaly score (object_score in the paper) for an observation
         :param observation: dict of the form {feature_name: feature_value, ...}
         """
-        return sum(self._get_feature_relevance(item) * \
-                   self._stationary_prob.get(item, self._unknown_feature_score)
-                    for item in iteritems(observation))
+        return sum((self._value_scores(observation)).values())
+
+    def value_scores(self, observation_iterable):
+        """
+        Compute an anomaly sub-score for each value of the observation in observation_iterable
+        :param observation_iterable: iterable of dict observations with each dict
+        of the form {feature_name: feature_value, ...}
+        Return dict with sub score of each value of the observation/object of the form:
+        {feature_name: weighted score of value of feature, ...}
+        (sub-scores sum up to score(self, observation_iterable))
+        """
+        if not (self._feature_relevance and self._stationary_prob):
+            raise CBRWScoreError()
+        if isinstance(observation_iterable, dict):
+            observation_iterable = [observation_iterable]
+        return [self._value_scores(obs) for obs in observation_iterable]
+
+    def _value_scores(self, observation):
+        """
+        Computes the weighted value scores for each feature value of an observation
+        :param observation: dict of the form {feature_name: feature_value, ...}
+        """
+        score_keys = []
+        value_scores = []
+        for item in iteritems(observation):
+            score_keys.append(get_feature_name(item))
+            value_scores.append(self._get_feature_relevance(item) * \
+                               self._stationary_prob.get(item, self._unknown_feature_score))
+        return dict(zip(score_keys, value_scores))
 
     def _get_feature_relevance(self, feature_tuple):
         """
