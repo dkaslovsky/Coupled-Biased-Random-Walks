@@ -13,7 +13,7 @@ from coupled_biased_random_walks.count import (
 from coupled_biased_random_walks.matrix import (
     dict_to_csr_matrix,
     random_walk,
-    row_normalize_csr_matrix
+    row_normalize_csr_matrix,
 )
 
 
@@ -94,17 +94,17 @@ class CBRW(object):
 
     def _score(self, observation):
         """
-        Computes the weighted anomaly score (object_score in the paper) for an observation
+        Compute the weighted anomaly score (object_score in the paper) for an observation
         :param observation: dict of the form {feature_name: feature_value, ...}
         """
         return sum(itervalues(self._value_scores(observation)))
 
     def value_scores(self, observation_iterable):
         """
-        Compute an anomaly sub-score for each value of the observation in observation_iterable
+        Compute an anomaly sub-score for each value of each observation in observation_iterable
         :param observation_iterable: iterable of dict observations with each dict
         of the form {feature_name: feature_value, ...}
-        Return dict with sub score of each value of the observation/object of the form:
+        Return dict with sub score of each value of each observation/object of the form:
         {feature_name: weighted score of value of feature, ...}
         (sub-scores sum up to score(self, observation_iterable))
         """
@@ -116,7 +116,7 @@ class CBRW(object):
 
     def _value_scores(self, observation):
         """
-        Computes the weighted value scores for each feature value of an observation
+        Compute the weighted value scores for each feature value of an observation
         :param observation: dict of the form {feature_name: feature_value, ...}
         """
         score_keys = []
@@ -190,13 +190,17 @@ class CBRW(object):
         return bias_dict
 
 
-class CBRWFitError(Exception):
+class CBRWError(Exception):
+    """ Base exception raised by the CBRW class """
     pass
 
 
-class CBRWScoreError(Exception):
+class CBRWFitError(CBRWError):
+    """ Exception raised for errors when fitting detector """
+    pass
 
-    message = 'must call fit method to train on added observations before scoring'
 
+class CBRWScoreError(CBRWError):
+    """ Exception raised when attempting to score a detector before it has been fit """
     def __str__(self):
-        return self.message
+        return 'must call fit method to train on added observations before scoring'
