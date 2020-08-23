@@ -63,6 +63,7 @@ The "value scores" (scores per attribute) for each observation can also be calcu
 ```
 and the results for the example data are shown below.
 ```
+Value scores:
 Observation ID 1: {'Gender': 0.0088, 'Education': 0.0195, 'Marriage': 0.0379, 'Income': 0.0393}
 Observation ID 2: {'Gender': 0.0171, 'Education': 0.0195, 'Marriage': 0.0208, 'Income': 0.0223}
 Observation ID 3: {'Gender': 0.0088, 'Education': 0.0195, 'Marriage': 0.0212, 'Income': 0.0247}
@@ -91,6 +92,7 @@ The CBRW algorithm can also be used to calculate feature weights.  These weights
 ```
 For the example data, the computed feature weights are
 ```
+Feature weights:
 {'Gender': 0.1608, 'Education': 0.2627, 'Marriage': 0.2826, 'Income': 0.2939}
 ```
 
