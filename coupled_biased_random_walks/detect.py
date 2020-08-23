@@ -19,6 +19,8 @@ from coupled_biased_random_walks.matrix import (
 
 class CBRW(object):
 
+    """ Class implementing Coupled Biased Random Walks algorithm """
+
     # random walk parameters
     PRESET_RW_PARAMS = {
         'alpha':    0.95,  # damping
