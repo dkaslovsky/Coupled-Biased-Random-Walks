@@ -3,13 +3,18 @@ from __future__ import division
 from collections import defaultdict
 
 import numpy as np
-from six import iteritems
+from six import iteritems, itervalues
 
-from coupled_biased_random_walks.count import (ObservationCounter,
-                                               get_feature_name, get_mode)
-from coupled_biased_random_walks.matrix import (dict_to_csr_matrix,
-                                                random_walk,
-                                                row_normalize_csr_matrix)
+from coupled_biased_random_walks.count import (
+    ObservationCounter,
+    get_feature_name,
+    get_mode,
+)
+from coupled_biased_random_walks.matrix import (
+    dict_to_csr_matrix,
+    random_walk,
+    row_normalize_csr_matrix
+)
 
 
 class CBRW(object):
@@ -92,7 +97,7 @@ class CBRW(object):
         Computes the weighted anomaly score (object_score in the paper) for an observation
         :param observation: dict of the form {feature_name: feature_value, ...}
         """
-        return sum((self._value_scores(observation)).values())
+        return sum(itervalues(self._value_scores(observation)))
 
     def value_scores(self, observation_iterable):
         """
@@ -118,8 +123,10 @@ class CBRW(object):
         value_scores = []
         for item in iteritems(observation):
             score_keys.append(get_feature_name(item))
-            value_scores.append(self._get_feature_relevance(item) *
-                                self._stationary_prob.get(item, self._unknown_feature_score))
+            value_scores.append(
+                self._get_feature_relevance(item) *
+                self._stationary_prob.get(item, self._unknown_feature_score)
+            )
         return dict(zip(score_keys, value_scores))
 
     def _get_feature_relevance(self, feature_tuple):
@@ -175,8 +182,11 @@ class CBRW(object):
         for feature_name, value_counts in iteritems(self._counter.counts):
             mode = get_mode(value_counts)
             base = 1 - (mode / self._counter.n_obs[feature_name])
-            bias_dict.update({feature_val: (1 - (count / mode) + base) / 2
-                              for feature_val, count in iteritems(value_counts)})
+            bias = {
+                feature_val: (1 - (count / mode) + base) / 2
+                for feature_val, count in iteritems(value_counts)
+            }
+            bias_dict.update(bias)
         return bias_dict
 
 
