@@ -1,8 +1,7 @@
 import os
 
-from six.moves import zip
+from six import iteritems
 
-#from coupled_biased_random_walks import CBRW
 from coupled_biased_random_walks import CBRW
 from data.loading import load_from_csv
 
@@ -13,23 +12,38 @@ DATA_PATH = os.path.join(file_dir, 'data', 'CBRW_paper_example.csv')
 EXCLUDE_COLS = ['Cheat?']
 
 
+def round_dict_values(input_dict, digits=4):
+    """ Helper function for printing dicts with float values """
+    return {key: round(val, digits) for key, val in iteritems(input_dict)}
+
+
 if __name__ == '__main__':
 
     detector = CBRW()
 
     # load data and add to detector as observations
-    data = load_from_csv(DATA_PATH, exclude_cols=EXCLUDE_COLS)
-    detector.add_observations(data)
+    observations = load_from_csv(DATA_PATH, exclude_cols=EXCLUDE_COLS)
 
-    # fit and score data
+    # add observations to detector and fit
+    detector.add_observations(observations)
     detector.fit()
-    print('Feature weights:\n{}\n'.format(detector.feature_weights))
-    
-    scores = detector.score(data)
-    # print scores and observations
-    for score, datum in zip(scores, data):
-        print('Score: {} | Data: {}'.format(round(score, 4), datum))
+
+    # compute scores
+    scores = detector.score(observations)
+    value_scores = detector.value_scores(observations)
+
+    # display results
+    print('Detector fit with {} observations:'.format(len(observations)))
+    for i, obs in enumerate(observations):
+        print('Observation ID {}: {}'.format(i+1, obs))
+
+    print('\nFeature weights:')
+    print(round_dict_values(detector.feature_weights, 4))
+
+    print('\nScores:')
+    for i, score in enumerate(scores):
+        print('Observation ID {}: {}'.format(i+1, round(score, 4)))
 
     print('\nValue scores per attribute:')
-    for i, value_score in enumerate(detector.value_scores(data)):
-        print('Observation {}: {}'.format(i, value_score))
+    for i, value_score in enumerate(value_scores):
+        print('Observation ID {}: {}'.format(i+1, round_dict_values(value_score, 4)))

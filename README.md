@@ -5,7 +5,7 @@ Outlier detection for categorical data
 [![Coverage Status](https://coveralls.io/repos/github/dkaslovsky/Coupled-Biased-Random-Walks/badge.svg?branch=master)](https://coveralls.io/github/dkaslovsky/Coupled-Biased-Random-Walks?branch=master)
 
 ### Overview
-Python [2.7, 3.4, 3.5, 3.6, 3.7] implementation of the Coupled Biased Random Walks (CBRW) outlier detection algorithm described by Pang, Cao, and Chen in https://www.ijcai.org/Proceedings/16/Papers/272.pdf.
+Python [2.7, 3.x] implementation of the Coupled Biased Random Walks (CBRW) outlier detection algorithm described by Pang, Cao, and Chen in https://www.ijcai.org/Proceedings/16/Papers/272.pdf.
 
 This implementation operates on Python dicts rather than Pandas DataFrames.  This has the advantage of allowing the model to be updated with new observations in a trivial manner and is more efficient in certain aspects.  However, these advantages come at the cost of iterating a (potentially large) dict of observed values more times than might otherwise be necessary using an underlying DataFrame implementation.
 
@@ -28,7 +28,7 @@ Let's run the CBRW detection algorithm on the authors' example data set from the
 
 <img src="./example_table.png" width="400">
 
-This data is saved as a [.CSV file](./data/CBRW_paper_example.csv) in this repository and is loaded into memory as a list of dicts by [example.py](./example.py).  Note that we drop the `Cheat?` column when loading the data, as this is essentially the target variable indicating the anomalous activity to be detected.  The detector is instantiated and observations are added as follows:
+This data is saved as a [CSV file](./data/CBRW_paper_example.csv) in this repository and is loaded into memory as a list of dicts by [example.py](./example.py).  Note that we drop the `Cheat?` column when loading the data, as this is essentially the target variable indicating the anomalous activity to be detected.  The detector is instantiated and observations are added as follows:
 ```
 >>> detector = CBRW()
 >>> detector.add_observations(observations)
@@ -40,20 +40,41 @@ where `observations` is an iterable of dicts such as the one loaded from the exa
 ```
 Even after fitting and scoring, more observations can be added via `add_observations` and the detector can again be fit to be used for scoring.  The advantage of this implementation is this ability to incrementally update with new observations.
 
-The results of scoring the example data are shown below.  Note that the only row where fraud was present (`Cheat? = yes`) received the largest anomaly score.
+The results of scoring the example data are shown below.  Note that the only observation (`ID=1`) where fraud was present (`Cheat? = yes`) received the largest anomaly score.
 ```
-Score: 0.1055 | Data: {'Gender': 'male', 'Education': 'master', 'Marriage': 'divorced', 'Income': 'low'}
-Score: 0.0797 | Data: {'Gender': 'female', 'Education': 'master', 'Marriage': 'married', 'Income': 'medium'}
-Score: 0.0741 | Data: {'Gender': 'male', 'Education': 'master', 'Marriage': 'single', 'Income': 'high'}
-Score: 0.0805 | Data: {'Gender': 'male', 'Education': 'bachelor', 'Marriage': 'married', 'Income': 'medium'}
-Score: 0.0992 | Data: {'Gender': 'female', 'Education': 'master', 'Marriage': 'divorced', 'Income': 'high'}
-Score: 0.0752 | Data: {'Gender': 'male', 'Education': 'PhD', 'Marriage': 'married', 'Income': 'high'}
-Score: 0.0741 | Data: {'Gender': 'male', 'Education': 'master', 'Marriage': 'single', 'Income': 'high'}
-Score: 0.0815 | Data: {'Gender': 'female', 'Education': 'PhD', 'Marriage': 'single', 'Income': 'medium'}
-Score: 0.0728 | Data: {'Gender': 'male', 'Education': 'PhD', 'Marriage': 'married', 'Income': 'medium'}
-Score: 0.0979 | Data: {'Gender': 'male', 'Education': 'bachelor', 'Marriage': 'single', 'Income': 'low'}
-Score: 0.0812 | Data: {'Gender': 'female', 'Education': 'PhD', 'Marriage': 'married', 'Income': 'medium'}
-Score: 0.0887 | Data: {'Gender': 'male', 'Education': 'master', 'Marriage': 'single', 'Income': 'low'}
+Scores:
+Observation ID 1: 0.1055
+Observation ID 2: 0.0797
+Observation ID 3: 0.0741
+Observation ID 4: 0.0805
+Observation ID 5: 0.0992
+Observation ID 6: 0.0752
+Observation ID 7: 0.0741
+Observation ID 8: 0.0815
+Observation ID 9: 0.0728
+Observation ID 10: 0.0979
+Observation ID 11: 0.0812
+Observation ID 12: 0.0887
+```
+
+The "value scores" (scores per attribute) for each observation can also be calculated
+```
+>>> value_scores(observations)
+```
+and the results for the example data are shown below.
+```
+Observation ID 1: {'Gender': 0.0088, 'Education': 0.0195, 'Marriage': 0.0379, 'Income': 0.0393}
+Observation ID 2: {'Gender': 0.0171, 'Education': 0.0195, 'Marriage': 0.0208, 'Income': 0.0223}
+Observation ID 3: {'Gender': 0.0088, 'Education': 0.0195, 'Marriage': 0.0212, 'Income': 0.0247}
+Observation ID 4: {'Gender': 0.0088, 'Education': 0.0286, 'Marriage': 0.0208, 'Income': 0.0223}
+Observation ID 5: {'Gender': 0.0171, 'Education': 0.0195, 'Marriage': 0.0379, 'Income': 0.0247}
+Observation ID 6: {'Gender': 0.0088, 'Education': 0.0209, 'Marriage': 0.0208, 'Income': 0.0247}
+Observation ID 7: {'Gender': 0.0088, 'Education': 0.0195, 'Marriage': 0.0212, 'Income': 0.0247}
+Observation ID 8: {'Gender': 0.0171, 'Education': 0.0209, 'Marriage': 0.0212, 'Income': 0.0223}
+Observation ID 9: {'Gender': 0.0088, 'Education': 0.0209, 'Marriage': 0.0208, 'Income': 0.0223}
+Observation ID 10: {'Gender': 0.0088, 'Education': 0.0286, 'Marriage': 0.0212, 'Income': 0.0393}
+Observation ID 11: {'Gender': 0.0171, 'Education': 0.0209, 'Marriage': 0.0208, 'Income': 0.0223}
+Observation ID 12: {'Gender': 0.0088, 'Education': 0.0195, 'Marriage': 0.0212, 'Income': 0.0393}
 ```
 
 The entire example can be reproduced by running:
@@ -70,10 +91,7 @@ The CBRW algorithm can also be used to calculate feature weights.  These weights
 ```
 For the example data, the computed feature weights are
 ```
-{'Education': 0.26272841835358907,
- 'Gender': 0.16078750024987953,
- 'Income': 0.2938981973816106,
- 'Marriage': 0.2825858840149206}
+{'Gender': 0.1608, 'Education': 0.2627, 'Marriage': 0.2826, 'Income': 0.2939}
 ```
 
 ### Implementation Notes
