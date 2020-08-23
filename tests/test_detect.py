@@ -53,7 +53,7 @@ class TestCBRW(unittest.TestCase):
         self.cbrw = CBRW()
         with self.assertRaises(CBRWFitError):
             self.cbrw.fit()
-    
+
     def test_fit(self):
         self.cbrw.fit()
         self.assertIsNotNone(self.cbrw._stationary_prob)
@@ -62,7 +62,7 @@ class TestCBRW(unittest.TestCase):
     def test_score_before_fit(self):
         with self.assertRaises(CBRWScoreError):
             _ = self.cbrw.score(self.observations)
-    
+
     def test_score(self):
         self.cbrw.fit()
 
@@ -96,7 +96,7 @@ class TestCBRW(unittest.TestCase):
         }
         score = self.cbrw.score(to_be_scored)
         self.assertTrue(isnan(score[0]))
-        
+
         # score valid and invalid observations in one call
         to_be_scored = [
             self.observations[0],
@@ -146,7 +146,7 @@ class TestCBRW(unittest.TestCase):
         actual_score = self.cbrw.score(actually_scored)
         self.assertFalse(isnan(score[0]))
         self.assertEqual(score, actual_score)
-        
+
         # score observation where all features not
         # previously observed
         to_be_scored = {

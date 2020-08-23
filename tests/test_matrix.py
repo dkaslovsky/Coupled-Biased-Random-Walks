@@ -26,7 +26,7 @@ def construct_2x2_csr_matrix(data):
             matrix_idx.append(ix)
     if matrix_data:
         return csr_matrix((matrix_data, zip(*matrix_idx)), shape=(2, 2))
-    return csr_matrix(([], ([], [])), shape=(2 ,2))
+    return csr_matrix(([], ([], [])), shape=(2, 2))
 
 
 def csr_matrix_equality(c1, c2):
@@ -119,7 +119,7 @@ class TestRowNormalizeCSRMatrix(unittest.TestCase):
 
         invalid_table = {
             'wrong type': {
-                'input': np.array([[1,2],[3,4]]),
+                'input': np.array([[1, 2], [3, 4]]),
                 'exception': TypeError
             },
             'stored zeros': {

@@ -265,14 +265,14 @@ class TestGetMode(unittest.TestCase):
         self.c1.update(['a', 'a', 'a', 'b', 'b'])
         self.c2 = Counter()
         self.c2.update(['a', 'a', 'b', 'b'])
-    
+
     def test_get_mode(self):
         table = {
             'empty counter': {
                 'counter': Counter(),
                 'expected': 0
             },
-            'unique mode': { 
+            'unique mode': {
                 'counter': self.c1,
                 'expected': 3
             },
@@ -293,7 +293,7 @@ class TestFeatureTupleGetters(unittest.TestCase):
 
     def setUp(self):
         self.tup = ('feature_name', 'feature_value')
-    
+
     def test_get_feature_name(self):
         feature_name = cnt.get_feature_name(self.tup)
         self.assertEqual(feature_name, 'feature_name')
