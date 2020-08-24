@@ -1,5 +1,6 @@
 import unittest
 
+import numpy as np
 from scipy.sparse import csr_matrix
 
 from coupled_biased_random_walks.count import isnan
@@ -73,7 +74,8 @@ class TestCBRW(unittest.TestCase):
         score = score[0]
         self.assertGreaterEqual(score, 0)
         self.assertLessEqual(score, 1)
-        # actual score is approximately 0.0015 so test this value in case implementation changes
+        # actual score is approximately 0.0015 so test this
+        # value in case implementation changes
         self.assertAlmostEqual(score, 0.0015, places=4)
 
     def test_score_unknown_features_default(self):
@@ -149,8 +151,8 @@ class TestCBRW(unittest.TestCase):
         self.assertFalse(isnan(score[0]))
         self.assertEqual(score, actual_score)
 
-        # score observation where all features not
-        # previously observed
+        # score observation where no features have
+        # previously been observed
         to_be_scored = {
             'feature_x': 'x_val_x',
             'feature_y': 'y_val_1',
@@ -159,3 +161,57 @@ class TestCBRW(unittest.TestCase):
         score = self.cbrw.score(to_be_scored)
         self.assertFalse(isnan(score[0]))
         self.assertEqual(score[0], 0)
+
+    def test_score_with_nans_default(self):
+        obs = [ob for ob in self.observations]
+        obs[0]['feautre_a'] = np.nan
+
+        to_be_scored = {
+            'feature_a': np.nan,
+            'feature_b': 'b_val_1',
+            'feature_c': 'c_val_1'
+        }
+
+        # score observation with nan value
+        self.cbrw.fit()
+        score = self.cbrw.score(to_be_scored)
+        self.assertTrue(isnan(score[0]))
+
+        # fit includes observation with nan value
+        self.cbrw = CBRW()
+        self.cbrw.add_observations(obs)
+        self.cbrw.fit()
+        score = self.cbrw.score(to_be_scored)
+        self.assertTrue(isnan(score[0]))
+
+    def test_score_with_nans_ignore(self):
+        obs = [ob for ob in self.observations]
+        obs[0]['feautre_a'] = np.nan
+
+        to_be_scored = {
+            'feature_a': np.nan,
+            'feature_b': 'b_val_1',
+            'feature_c': 'c_val_1'
+        }
+        actually_scored = {
+            'feature_b': 'b_val_1',
+            'feature_c': 'c_val_1'
+        }
+
+        # score observation with nan value
+        self.cbrw = CBRW(ignore_unknown=True)
+        self.cbrw.add_observations(self.observations)
+        self.cbrw.fit()
+        score = self.cbrw.score(to_be_scored)
+        actual_score = self.cbrw.score(actually_scored)
+        self.assertFalse(isnan(score[0]))
+        self.assertEqual(score, actual_score)
+
+        # fit includes observation with nan value
+        self.cbrw = CBRW(ignore_unknown=True)
+        self.cbrw.add_observations(obs)
+        self.cbrw.fit()
+        score = self.cbrw.score(to_be_scored)
+        actual_score = self.cbrw.score(actually_scored)
+        self.assertFalse(isnan(score[0]))
+        self.assertEqual(score, actual_score)
