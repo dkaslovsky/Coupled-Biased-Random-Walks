@@ -2,5 +2,7 @@
 
 * [Added] `CBRW.value_scores()` function to return individual value scores of an observation
 * [Added] exceptions inherit from base `CBRWError` exception
+* [Added] test cases for NaN values
 * [Changed] README describes value_scores functionality
 * [Changed] example.py is reorganized to include value_scores
+* [Fixed] tests compare sorted lists
