@@ -105,8 +105,8 @@ class TestObservationCounter(unittest.TestCase):
         }
         for feature, test in iteritems(table):
             counts = self.oc.counts[feature]
-            expected = test['expected']
-            self.assertListEqual(list(counts.items()), expected, feature)
+            expected = sorted(test['expected'])
+            self.assertListEqual(sorted(list(counts.items())), expected, feature)
 
         # test joint_counts
         expected_joint_counts = {
@@ -203,8 +203,8 @@ class TestObservationCounterWithMissingData(unittest.TestCase):
         }
         for feature, test in iteritems(table):
             counts = self.oc.counts.get(feature, {})
-            expected = test['expected']
-            self.assertListEqual(list(counts.items()), expected, feature)
+            expected = sorted(test['expected'])
+            self.assertListEqual(sorted(list(counts.items())), expected, feature)
 
         # test joint_counts
         expected_joint_counts = {
