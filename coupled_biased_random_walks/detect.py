@@ -121,15 +121,12 @@ class CBRW(object):
         Compute the weighted value scores for each feature value of an observation
         :param observation: dict of the form {feature_name: feature_value, ...}
         """
-        score_keys = []
-        value_scores = []
-        for item in iteritems(observation):
-            score_keys.append(get_feature_name(item))
-            value_scores.append(
+        return {
+            get_feature_name(item):
                 self._get_feature_relevance(item) *
                 self._stationary_prob.get(item, self._unknown_feature_score)
-            )
-        return dict(zip(score_keys, value_scores))
+            for item in iteritems(observation)
+        }
 
     def _get_feature_relevance(self, feature_tuple):
         """
