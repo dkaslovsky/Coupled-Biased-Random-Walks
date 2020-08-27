@@ -31,7 +31,7 @@ if __name__ == '__main__':
     value_scores = detector.value_scores(observations)
 
     # display results
-    print('Detector fit with {} observations:'.format(len(observations)))
+    print(f'Detector fit with {len(observations)} observations:')
     for i, obs in enumerate(observations):
         print(f'Observation ID {i+1}: {obs}')
 
