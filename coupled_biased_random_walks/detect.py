@@ -32,7 +32,7 @@ class CBRW:
         or values based only on features seen during training; if False, score such an observation
         as nan (default)
         """
-        self.rw_params = rw_params if rw_params else self.PRESET_RW_PARAMS
+        self.rw_params = rw_params or self.PRESET_RW_PARAMS
         self._unknown_feature_score = 0 if ignore_unknown else np.nan
 
         self._counter = ObservationCounter()
@@ -178,11 +178,9 @@ class CBRW:
         for feature_name, value_counts in self._counter.counts.items():
             mode = get_mode(value_counts)
             base = 1 - (mode / self._counter.n_obs[feature_name])
-            bias = {
-                feature_val: (1 - (count / mode) + base) / 2
-                for feature_val, count in value_counts.items()
-            }
-            bias_dict.update(bias)
+            for feature_val, count in value_counts.items():
+                bias = (1 - (count / mode) + base) / 2
+                bias_dict[feature_val] = bias
         return bias_dict
 
 

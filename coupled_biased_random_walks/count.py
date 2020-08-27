@@ -39,7 +39,7 @@ class IncrementingDict(Mapping):
         return self._d.__repr__()
 
 
-class ObservationCounter(object):
+class ObservationCounter:
 
     """
     Counts single and joint occurrences of key/value pairs in a dict with

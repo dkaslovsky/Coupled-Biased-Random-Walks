@@ -10,13 +10,15 @@ def load_from_csv(path_to_csv, exclude_cols=None):
     :param exclude_cols: iterable of columns to exclude (often the target variable)
     """
     with open(path_to_csv, 'r') as csvfile:
+        # use list to load into memory before closing
         data = list(DictReader(csvfile))
-    if exclude_cols is not None:
-        if isinstance(exclude_cols, str):
-            exclude_cols = {exclude_cols}
-        filt = partial(filter_keys, fields=set(exclude_cols))
-        return [filt(rec) for rec in data]
-    return data
+    if exclude_cols is None:
+        return data
+    # filter based on exclude cols
+    if isinstance(exclude_cols, str):
+        exclude_cols = {exclude_cols}
+    filt = partial(filter_keys, fields=set(exclude_cols))
+    return [filt(rec) for rec in data]
 
 
 def filter_keys(record, fields):

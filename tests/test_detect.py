@@ -232,7 +232,7 @@ class TestCBRW(unittest.TestCase):
         to_be_scored = self.observations[0]
         value_scores = self.cbrw.value_scores(to_be_scored)
         value_scores = value_scores[0]
-        self.assertListEqual(sorted(value_scores.keys()), sorted(to_be_scored.keys()))
+        self.assertCountEqual(value_scores.keys(), to_be_scored.keys())
         for vs in value_scores.values():
             self.assertGreaterEqual(vs, 0)
             self.assertLessEqual(vs, 1)

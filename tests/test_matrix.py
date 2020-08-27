@@ -21,12 +21,13 @@ def construct_2x2_csr_matrix(data):
     matrix_data = []
     matrix_idx = []
     for ix, datum in zip(idx, data):
-        if datum != 0:
-            matrix_data.append(datum)
-            matrix_idx.append(ix)
-    if matrix_data:
-        return csr_matrix((matrix_data, zip(*matrix_idx)), shape=(2, 2))
-    return csr_matrix(([], ([], [])), shape=(2, 2))
+        if datum == 0:
+            continue
+        matrix_data.append(datum)
+        matrix_idx.append(ix)
+    if not matrix_data:
+        return csr_matrix(([], ([], [])), shape=(2, 2))
+    return csr_matrix((matrix_data, zip(*matrix_idx)), shape=(2, 2))
 
 
 def csr_matrix_equality(c1, c2):
@@ -85,12 +86,9 @@ class TestDictToCSRMatrix(unittest.TestCase):
             }
         }
 
-        for test_name, params in table.items():
-            data_dict = params['data_dict']
-            shape = params['shape']
-            expected = params['expected']
-            result = dict_to_csr_matrix(data_dict, shape)
-            self.assertTrue(csr_matrix_equality(result, expected), test_name)
+        for test_name, test in table.items():
+            result = dict_to_csr_matrix(test['data_dict'], test['shape'])
+            self.assertTrue(csr_matrix_equality(result, test['expected']), test_name)
 
 
 class TestRowNormalizeCSRMatrix(unittest.TestCase):
