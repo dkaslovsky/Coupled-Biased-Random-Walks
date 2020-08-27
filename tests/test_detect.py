@@ -3,11 +3,13 @@ from copy import deepcopy
 
 import numpy as np
 from scipy.sparse import csr_matrix
-from six import itervalues
 
 from coupled_biased_random_walks.count import isnan
-from coupled_biased_random_walks.detect import (CBRW, CBRWFitError,
-                                                CBRWScoreError)
+from coupled_biased_random_walks.detect import (
+    CBRW,
+    CBRWFitError,
+    CBRWScoreError,
+)
 
 
 class TestCBRW(unittest.TestCase):
@@ -231,7 +233,7 @@ class TestCBRW(unittest.TestCase):
         value_scores = self.cbrw.value_scores(to_be_scored)
         value_scores = value_scores[0]
         self.assertListEqual(sorted(value_scores.keys()), sorted(to_be_scored.keys()))
-        for vs in itervalues(value_scores):
+        for vs in value_scores.values():
             self.assertGreaterEqual(vs, 0)
             self.assertLessEqual(vs, 1)
 
@@ -272,8 +274,8 @@ class TestCBRW(unittest.TestCase):
         value_scores = self.cbrw.value_scores(to_be_scored)
         valid_scores = value_scores[0]
         invalid_scores = value_scores[1]
-        self.assertTrue(all(not isnan(valid_score) for valid_score in itervalues(valid_scores)))
-        self.assertTrue(any(isnan(invalid_score) for invalid_score in itervalues(invalid_scores)))
+        self.assertTrue(all(not isnan(valid_score) for valid_score in valid_scores.values()))
+        self.assertTrue(any(isnan(invalid_score) for invalid_score in invalid_scores.values()))
 
     def test_value_scores_unknown_features_ignore(self):
         self.cbrw = CBRW(ignore_unknown=True)
@@ -293,7 +295,7 @@ class TestCBRW(unittest.TestCase):
         }
         value_scores = self.cbrw.value_scores(to_be_scored)[0]
         actual_value_scores = self.cbrw.value_scores(actually_scored)[0]
-        self.assertTrue(all(not isnan(vs) for vs in itervalues(value_scores)))
+        self.assertTrue(all(not isnan(vs) for vs in value_scores.values()))
         self.assertEqual(value_scores['feature_a'], 0)
         self.assertEqual(value_scores['feature_b'], actual_value_scores['feature_b'])
         self.assertEqual(value_scores['feature_c'], actual_value_scores['feature_c'])
@@ -311,7 +313,7 @@ class TestCBRW(unittest.TestCase):
         }
         value_scores = self.cbrw.value_scores(to_be_scored)[0]
         actual_value_scores = self.cbrw.value_scores(actually_scored)[0]
-        self.assertTrue(all(not isnan(vs) for vs in itervalues(value_scores)))
+        self.assertTrue(all(not isnan(vs) for vs in value_scores.values()))
         self.assertEqual(value_scores['feature_x'], 0)
         self.assertEqual(value_scores['feature_b'], actual_value_scores['feature_b'])
         self.assertEqual(value_scores['feature_c'], actual_value_scores['feature_c'])
@@ -324,8 +326,8 @@ class TestCBRW(unittest.TestCase):
             'feature_z': 'z_val_1'
         }
         value_scores = self.cbrw.value_scores(to_be_scored)[0]
-        self.assertTrue(all(not isnan(vs) for vs in itervalues(value_scores)))
-        self.assertTrue(all(vs == 0 for vs in itervalues(value_scores)))
+        self.assertTrue(all(not isnan(vs) for vs in value_scores.values()))
+        self.assertTrue(all(vs == 0 for vs in value_scores.values()))
 
     def test_value_scores_with_nans_default(self):
         obs = deepcopy(self.observations)
@@ -369,7 +371,7 @@ class TestCBRW(unittest.TestCase):
         self.cbrw.fit()
         value_scores = self.cbrw.value_scores(to_be_scored)[0]
         actual_value_scores = self.cbrw.value_scores(actually_scored)[0]
-        self.assertTrue(all(not isnan(vs) for vs in itervalues(value_scores)))
+        self.assertTrue(all(not isnan(vs) for vs in value_scores.values()))
         self.assertEqual(value_scores['feature_a'], 0)
         self.assertEqual(value_scores['feature_b'], actual_value_scores['feature_b'])
         self.assertEqual(value_scores['feature_c'], actual_value_scores['feature_c'])
@@ -380,7 +382,7 @@ class TestCBRW(unittest.TestCase):
         self.cbrw.fit()
         value_scores = self.cbrw.value_scores(to_be_scored)[0]
         actual_value_scores = self.cbrw.value_scores(actually_scored)[0]
-        self.assertTrue(all(not isnan(vs) for vs in itervalues(value_scores)))
+        self.assertTrue(all(not isnan(vs) for vs in value_scores.values()))
         self.assertEqual(value_scores['feature_a'], 0)
         self.assertEqual(value_scores['feature_b'], actual_value_scores['feature_b'])
         self.assertEqual(value_scores['feature_c'], actual_value_scores['feature_c'])

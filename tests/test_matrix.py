@@ -2,12 +2,12 @@ import unittest
 
 import numpy as np
 from scipy.sparse import csr_matrix
-from six import iteritems
-from six.moves import zip
 
-from coupled_biased_random_walks.matrix import (dict_to_csr_matrix,
-                                                random_walk,
-                                                row_normalize_csr_matrix)
+from coupled_biased_random_walks.matrix import (
+    dict_to_csr_matrix,
+    random_walk,
+    row_normalize_csr_matrix,
+)
 
 np.random.seed(0)
 
@@ -85,7 +85,7 @@ class TestDictToCSRMatrix(unittest.TestCase):
             }
         }
 
-        for test_name, params in iteritems(table):
+        for test_name, params in table.items():
             data_dict = params['data_dict']
             shape = params['shape']
             expected = params['expected']
@@ -128,13 +128,13 @@ class TestRowNormalizeCSRMatrix(unittest.TestCase):
             }
         }
 
-        for test_name, test in iteritems(valid_table):
+        for test_name, test in valid_table.items():
             matrix = construct_2x2_csr_matrix(test['data'])
             normalized = row_normalize_csr_matrix(matrix)
             row_sums = normalized.sum(axis=1)
             self.assertAlmostEqual(row_sums[0], test['expected_row_0'], 3, test_name)
             self.assertAlmostEqual(row_sums[1], test['expected_row_1'], 3, test_name)
 
-        for test_name, test in iteritems(invalid_table):
+        for test_name, test in invalid_table.items():
             with self.assertRaises(test['exception']):
                 _ = row_normalize_csr_matrix(test['input'])
