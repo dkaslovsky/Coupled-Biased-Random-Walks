@@ -1,5 +1,5 @@
 ## 2.0.0 / 2020-08-26
-* [Changed] removed support for Python2
+* [Changed] removed support for Python 2 and <3.6
 * [Changed] updated dependencies to latest versions
 
 ## 1.1.0 / 2020-08-23
