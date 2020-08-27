@@ -1,8 +1,6 @@
 from csv import DictReader
 from functools import partial
 
-from six import iteritems
-
 
 def load_from_csv(path_to_csv, exclude_cols=None):
     """
@@ -28,4 +26,4 @@ def filter_keys(record, fields):
     :param fields: set of strings indicating fields to drop
     :return:
     """
-    return {k: v for k, v in iteritems(record) if k not in fields}
+    return {k: v for k, v in record.items() if k not in fields}
