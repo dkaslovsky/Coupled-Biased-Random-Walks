@@ -14,7 +14,7 @@ from coupled_biased_random_walks.matrix import (
 )
 
 
-class CBRW(object):
+class CBRW:
 
     """ Class implementing Coupled Biased Random Walks algorithm """
 
