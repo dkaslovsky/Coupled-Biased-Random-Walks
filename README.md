@@ -3,9 +3,10 @@ Outlier detection for categorical data
 
 [![Build Status](https://travis-ci.org/dkaslovsky/Coupled-Biased-Random-Walks.svg?branch=master)](https://travis-ci.org/dkaslovsky/Coupled-Biased-Random-Walks)
 [![Coverage Status](https://coveralls.io/repos/github/dkaslovsky/Coupled-Biased-Random-Walks/badge.svg?branch=master)](https://coveralls.io/github/dkaslovsky/Coupled-Biased-Random-Walks?branch=master)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/Coupled-Biased-Random-Walks)
 
 ### Overview
-Python [2.7, 3.x] implementation of the Coupled Biased Random Walks (CBRW) outlier detection algorithm described by Pang, Cao, and Chen in https://www.ijcai.org/Proceedings/16/Papers/272.pdf.
+Python implementation of the Coupled Biased Random Walks (CBRW) outlier detection algorithm described by Pang, Cao, and Chen in https://www.ijcai.org/Proceedings/16/Papers/272.pdf.
 
 This implementation operates on Python dicts rather than Pandas DataFrames.  This has the advantage of allowing the model to be updated with new observations in a trivial manner and is more efficient in certain aspects.  However, these advantages come at the cost of iterating a (potentially large) dict of observed values more times than might otherwise be necessary using an underlying DataFrame implementation.
 
@@ -14,7 +15,7 @@ If one is working with data previously loaded into a DataFrame, simply use the r
 ### Installation
 This package is hosted on PyPI and can be installed via `pip`:
 ```
-$ pip install coupled_biased_random_walks
+$ pip install coupled-biased-random-walks
 ```
 To instead install from source:
 ```
