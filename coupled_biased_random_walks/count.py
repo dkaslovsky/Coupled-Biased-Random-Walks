@@ -1,14 +1,6 @@
 from collections import Counter, defaultdict
+from collections.abc import Mapping
 from itertools import combinations, tee
-
-from six import iteritems
-
-try:
-    # python 2
-    from collections import Mapping
-except ImportError:
-    # python 3
-    from collections.abc import Mapping
 
 
 class IncrementingDict(Mapping):
@@ -91,9 +83,9 @@ class ObservationCounter(object):
             # feature name with value NaN represents a missing feature in the
             # observation (e.g., a missing value is NaN-filled in a pandas DataFrame) so
             # we remove any such features from the observation to avoid including in counts
-            obs = {key: value for key, value in iteritems(observation) if not isnan(value)}
+            obs = {key: value for key, value in observation.items() if not isnan(value)}
             # create iterators of obs for updating counts
-            obs1, obs2 = tee(iteritems(obs), 2)
+            obs1, obs2 = tee(obs.items(), 2)
             self._update_counts(obs1)
             self._update_joint_counts(obs2)
 

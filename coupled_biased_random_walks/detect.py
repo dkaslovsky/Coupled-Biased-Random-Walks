@@ -1,9 +1,6 @@
-from __future__ import division
-
 from collections import defaultdict
 
 import numpy as np
-from six import iteritems, itervalues
 
 from coupled_biased_random_walks.count import (
     ObservationCounter,
@@ -71,7 +68,7 @@ class CBRW(object):
         stationary_prob = {}
         feature_relevance = defaultdict(int)
 
-        for feature, idx in iteritems(self._counter.index):
+        for feature, idx in self._counter.index.items():
             prob = pi[idx]
             stationary_prob[feature] = prob
             feature_relevance[get_feature_name(feature)] += prob
@@ -99,7 +96,7 @@ class CBRW(object):
         Compute the weighted anomaly score (object_score in the paper) for an observation
         :param observation: dict of the form {feature_name: feature_value, ...}
         """
-        return sum(itervalues(self._value_scores(observation)))
+        return sum(self._value_scores(observation).values())
 
     def value_scores(self, observation_iterable):
         """
@@ -125,7 +122,7 @@ class CBRW(object):
             get_feature_name(item):
                 self._get_feature_relevance(item) *
                 self._stationary_prob.get(item, self._unknown_feature_score)
-            for item in iteritems(observation)
+            for item in observation.items()
         }
 
     def _get_feature_relevance(self, feature_tuple):
@@ -144,7 +141,7 @@ class CBRW(object):
 
         bias_dict = self._compute_biases()
 
-        for (feature1, feature2), joint_count in iteritems(self._counter.joint_counts):
+        for (feature1, feature2), joint_count in self._counter.joint_counts.items():
 
             # get index for features
             feature1_idx = self._counter.index[feature1]
@@ -178,12 +175,12 @@ class CBRW(object):
         Computes bias for random walk for each feature tuple
         """
         bias_dict = {}
-        for feature_name, value_counts in iteritems(self._counter.counts):
+        for feature_name, value_counts in self._counter.counts.items():
             mode = get_mode(value_counts)
             base = 1 - (mode / self._counter.n_obs[feature_name])
             bias = {
                 feature_val: (1 - (count / mode) + base) / 2
-                for feature_val, count in iteritems(value_counts)
+                for feature_val, count in value_counts.items()
             }
             bias_dict.update(bias)
         return bias_dict

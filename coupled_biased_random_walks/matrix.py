@@ -1,8 +1,5 @@
-from __future__ import division
-
 import numpy as np
 from scipy.sparse import csr_matrix
-from six.moves import range
 
 
 def random_walk(transition_matrix, alpha, err_tol, max_iter):
@@ -41,8 +38,7 @@ def dict_to_csr_matrix(data_dict, shape):
 
     if isinstance(shape, int):
         shape = (shape, shape)
-    # csr_matrix cannot accept iterators so cast to lists for python 3
-    data = list(data_dict.values())
+    data = list(data_dict.values())  # csr_matrix cannot accept iterator for data
     idx = zip(*list(data_dict.keys()))
     return csr_matrix((data, idx), shape=shape)
 
