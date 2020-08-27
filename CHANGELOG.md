@@ -1,3 +1,7 @@
+## 2.0.0 / 2020-08-26
+* [Changed] removed support for Python2
+* [Changed] updated dependencies to latest versions
+
 ## 1.1.0 / 2020-08-23
 
 * [Added] `CBRW.value_scores()` function to return individual value scores of an observation
