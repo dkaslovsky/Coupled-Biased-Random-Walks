@@ -8,7 +8,7 @@ Outlier detection for categorical data
 ### Overview
 Python implementation of the Coupled Biased Random Walks (CBRW) outlier detection algorithm described by Pang, Cao, and Chen in https://www.ijcai.org/Proceedings/16/Papers/272.pdf.
 
-__NOTE__: Only Python>=3.6 is supported as of version 2.0.0.
+__NOTE__: Only Python>=3.7 is supported as of version 2.0.0.
 
 This implementation operates on Python dicts rather than Pandas DataFrames.  This has the advantage of allowing the model to be updated with new observations in a trivial manner and is more efficient in certain aspects.  However, these advantages come at the cost of iterating a (potentially large) dict of observed values more times than might otherwise be necessary using an underlying DataFrame implementation.
 
