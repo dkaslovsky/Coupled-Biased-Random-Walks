@@ -1,8 +1,17 @@
+from typing import Dict, Tuple, Union
+
 import numpy as np
 from scipy.sparse import csr_matrix
 
+from coupled_biased_random_walks.types import obs_item_type
 
-def random_walk(transition_matrix, alpha, err_tol, max_iter):
+
+def random_walk(
+    transition_matrix: csr_matrix,
+    alpha: float,
+    err_tol: float,
+    max_iter: int
+) -> np.ndarray:
     """
     Run random walk to compute stationary probabilities
     :param transition_matrix: scipy.sparse.csr_matrix defining the random walk
@@ -27,7 +36,10 @@ def random_walk(transition_matrix, alpha, err_tol, max_iter):
     return pi
 
 
-def dict_to_csr_matrix(data_dict, shape):
+def dict_to_csr_matrix(
+    data_dict: Dict[obs_item_type, float],
+    shape: Union[int, Tuple[int, int]],
+) -> csr_matrix:
     """
     Converts dict of index -> value to csr_matrix
     :param data_dict: dict mapping matrix index tuple to corresponding matrix value
@@ -43,7 +55,7 @@ def dict_to_csr_matrix(data_dict, shape):
     return csr_matrix((data, idx), shape=shape)
 
 
-def row_normalize_csr_matrix(matrix):
+def row_normalize_csr_matrix(matrix: csr_matrix) -> csr_matrix:
     """
     Row normalize a csr matrix without mutating the input
     :param matrix: scipy.sparse.csr_matrix instance

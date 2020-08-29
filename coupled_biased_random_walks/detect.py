@@ -1,6 +1,10 @@
+from __future__ import annotations
+
 from collections import defaultdict
+from typing import Dict, Iterable, List, Optional
 
 import numpy as np
+from scipy.sparse import csr_matrix
 
 from coupled_biased_random_walks.count import (
     ObservationCounter,
@@ -12,6 +16,7 @@ from coupled_biased_random_walks.matrix import (
     random_walk,
     row_normalize_csr_matrix,
 )
+from coupled_biased_random_walks.types import obs_item_type, observation_type
 
 
 class CBRW:
@@ -25,7 +30,11 @@ class CBRW:
         'max_iter': 100    # max number of steps to take
     }
 
-    def __init__(self, rw_params=None, ignore_unknown=False):
+    def __init__(
+        self,
+        rw_params: Optional[Dict[str, float]] = None,
+        ignore_unknown: bool = False,
+    ):
         """
         :param rw_params: random walk parameters to override defaults
         :param ignore_unknown: if True, score an observation containing unknown feature names
@@ -36,14 +45,14 @@ class CBRW:
         self._unknown_feature_score = 0 if ignore_unknown else np.nan
 
         self._counter = ObservationCounter()
-        self._stationary_prob = None
-        self._feature_relevance = None
+        self._stationary_prob = None    # type: Optional[Dict[obs_item_type, float]]
+        self._feature_relevance = None  # type: Optional[Dict[str, float]]
 
     @property
-    def feature_weights(self):
+    def feature_weights(self) -> Optional[Dict[str, float]]:
         return self._feature_relevance
 
-    def add_observations(self, observation_iterable):
+    def add_observations(self, observation_iterable: Iterable[observation_type]) -> CBRW:
         """
         Add observations to be modeled
         :param observation_iterable: list of dicts with each dict representing an observation
@@ -52,7 +61,7 @@ class CBRW:
         self._counter.update(observation_iterable)
         return self
 
-    def fit(self):
+    def fit(self) -> CBRW:
         """
         Compute model based on current observations in state
         """
@@ -79,7 +88,7 @@ class CBRW:
         self._feature_relevance = dict(feature_relevance)
         return self
 
-    def score(self, observation_iterable):
+    def score(self, observation_iterable: Iterable[observation_type]) -> np.array:
         """
         Compute an anomaly score for each observation in observation_iterable
         :param observation_iterable: iterable of dict observations with each dict
@@ -91,14 +100,17 @@ class CBRW:
             observation_iterable = [observation_iterable]
         return np.array([self._score(obs) for obs in observation_iterable])
 
-    def _score(self, observation):
+    def _score(self, observation: observation_type) -> float:
         """
         Compute the weighted anomaly score (object_score in the paper) for an observation
         :param observation: dict of the form {feature_name: feature_value, ...}
         """
         return sum(self._value_scores(observation).values())
 
-    def value_scores(self, observation_iterable):
+    def value_scores(
+        self,
+        observation_iterable: Iterable[observation_type],
+    ) -> List[Dict[str, float]]:
         """
         Compute an anomaly sub-score for each value of each observation in observation_iterable
         :param observation_iterable: iterable of dict observations with each dict
@@ -113,7 +125,7 @@ class CBRW:
             observation_iterable = [observation_iterable]
         return [self._value_scores(obs) for obs in observation_iterable]
 
-    def _value_scores(self, observation):
+    def _value_scores(self, observation: observation_type) -> Dict[str, float]:
         """
         Compute the weighted value scores for each feature value of an observation
         :param observation: dict of the form {feature_name: feature_value, ...}
@@ -125,7 +137,7 @@ class CBRW:
             for item in observation.items()
         }
 
-    def _get_feature_relevance(self, feature_tuple):
+    def _get_feature_relevance(self, feature_tuple: obs_item_type) -> float:
         """
         Getter for the relevance (weight) of a feature (category)
         :param feature_tuple:  tuple of the form (feature_name, feature_value)
@@ -133,11 +145,11 @@ class CBRW:
         feature_name = get_feature_name(feature_tuple)
         return self._feature_relevance.get(feature_name, 0)
 
-    def _compute_biased_transition_matrix(self):
+    def _compute_biased_transition_matrix(self) -> csr_matrix:
         """
         Computes biased probability transition matrix of conditional probabilities
         """
-        prob_idx = {}
+        prob_idx = {}  # type: Dict[obs_item_type, float]
 
         bias_dict = self._compute_biases()
 
@@ -170,11 +182,11 @@ class CBRW:
         trans_matrix = dict_to_csr_matrix(prob_idx, shape=n_features)
         return row_normalize_csr_matrix(trans_matrix)
 
-    def _compute_biases(self):
+    def _compute_biases(self) -> Dict[obs_item_type, float]:
         """
         Computes bias for random walk for each feature tuple
         """
-        bias_dict = {}
+        bias_dict = {}  # type: Dict[obs_item_type, float]
         for feature_name, value_counts in self._counter.counts.items():
             mode = get_mode(value_counts)
             base = 1 - (mode / self._counter.n_obs[feature_name])
