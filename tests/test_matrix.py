@@ -1,4 +1,5 @@
 import unittest
+from typing import List
 
 import numpy as np
 from scipy.sparse import csr_matrix
@@ -12,7 +13,7 @@ from coupled_biased_random_walks.matrix import (
 np.random.seed(0)
 
 
-def construct_2x2_csr_matrix(data):
+def construct_2x2_csr_matrix(data: List[float]) -> csr_matrix:
     """
     Construct a 2x2 csr_matrix
     :param data: list of length 4 of data for csr matrix corresponding to idx position
@@ -30,9 +31,11 @@ def construct_2x2_csr_matrix(data):
     return csr_matrix((matrix_data, zip(*matrix_idx)), shape=(2, 2))
 
 
-def csr_matrix_equality(c1, c2):
+def csr_matrix_equality(c1: csr_matrix, c2: csr_matrix) -> bool:
     """
-    Test 2 csr matrices for equality
+    Test two csr matrices for equality
+    :param c1: csr_matrix to compare
+    :param c2: csr_matrix to compare
     """
     if c1.shape != c2.shape:
         return False

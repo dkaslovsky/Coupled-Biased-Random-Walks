@@ -1,8 +1,14 @@
 from csv import DictReader
 from functools import partial
+from typing import Iterable, List, Optional, Set
+
+from coupled_biased_random_walks.types import observation_type
 
 
-def load_from_csv(path_to_csv, exclude_cols=None):
+def load_from_csv(
+    path_to_csv: str,
+    exclude_cols: Optional[Iterable[str]] = None,
+) -> List[observation_type]:
     """
     Load a CSV and return a list of dicts, one dict for each row of
     the form {column_header1: <value>, column_header2: <value>, ...}
@@ -21,7 +27,7 @@ def load_from_csv(path_to_csv, exclude_cols=None):
     return [filt(rec) for rec in data]
 
 
-def filter_keys(record, fields):
+def filter_keys(record: observation_type, fields: Set[str]):
     """
     Filter keys from a dict
     :param record: dict
