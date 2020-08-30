@@ -76,9 +76,9 @@ class TestCBRW(unittest.TestCase):
         score = score[0]
         self.assertGreaterEqual(score, 0)
         self.assertLessEqual(score, 1)
-        # actual score is approximately 0.0015 so test this
+        # actual score is approximately 0.2759 so test this
         # value in case implementation changes
-        self.assertAlmostEqual(score, 0.0015, places=4)
+        self.assertAlmostEqual(score, 0.2759, places=4)
 
     def test_score_unknown_features_default(self):
         self.cbrw.fit()

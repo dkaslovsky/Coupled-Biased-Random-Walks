@@ -11,6 +11,7 @@ from coupled_biased_random_walks.count import (
     get_mode,
 )
 from coupled_biased_random_walks.matrix import (
+    EPS,
     dict_to_csr_matrix,
     random_walk,
     row_normalize_csr_matrix,
@@ -65,21 +66,27 @@ class CBRW(object):
             raise CBRWFitError('must add observations before calling fit method')
 
         # execute biased random walk
-        transition_matrix = self._compute_biased_transition_matrix()
-        pi = random_walk(transition_matrix, **self.rw_params).ravel()
+        try:
+            pi = random_walk(self._compute_biased_transition_matrix(), **self.rw_params).ravel()
+        except ValueError as err:
+            raise CBRWFitError(err)
 
+        # allocate probability by feature
         stationary_prob = {}
         feature_relevance = defaultdict(int)
-
         for feature, idx in iteritems(self._counter.index):
             prob = pi[idx]
             stationary_prob[feature] = prob
             feature_relevance[get_feature_name(feature)] += prob
-        # feature relevance scores are to be used as weights; accordingly the paper
-        # normalizes them to sum to 1, however this sum normalization should not be
-        # necessary since sum(pi) = 1 by definition
+
+        # sum normalize feature_relevance
+        feature_rel_sum = sum(itervalues(feature_relevance))
+        if feature_rel_sum < EPS:
+            raise CBRWFitError('feature weights sum approximately zero')
+        feature_relevance = {key: val/feature_rel_sum for key, val in iteritems(feature_relevance)}
+
         self._stationary_prob = stationary_prob
-        self._feature_relevance = dict(feature_relevance)
+        self._feature_relevance = feature_relevance
         return self
 
     def score(self, observation_iterable):

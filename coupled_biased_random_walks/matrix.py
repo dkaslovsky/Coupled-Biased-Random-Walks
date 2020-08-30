@@ -5,6 +5,9 @@ from scipy.sparse import csr_matrix
 from six.moves import range
 
 
+EPS = 10e-8  # tolerance below which to consider a value as zero
+
+
 def random_walk(transition_matrix, alpha, err_tol, max_iter):
     """
     Run random walk to compute stationary probabilities
@@ -24,10 +27,14 @@ def random_walk(transition_matrix, alpha, err_tol, max_iter):
     for _ in range(max_iter):
         pi_next = damping_vec + alpha * transition_matrix.T.dot(pi)
         err = np.linalg.norm(pi - pi_next, ord=np.inf)
-        if err <= err_tol:
-            return pi_next
         pi = pi_next
-    return pi
+        if err <= err_tol:
+            break
+
+    pi_sum = sum(pi)
+    if pi_sum < EPS:
+        raise ValueError('stationary probabilities sum approximately zero')
+    return pi / pi_sum
 
 
 def dict_to_csr_matrix(data_dict, shape):
