@@ -2,7 +2,6 @@ import unittest
 from collections import Counter
 
 import numpy as np
-from six import iteritems
 
 import coupled_biased_random_walks.count as cnt
 
@@ -26,7 +25,7 @@ class TestIncrementingDict(unittest.TestCase):
                 'expected_dict': {'a': 0, 'c': 1, 'b': 2, 'd': 3}
             }
         }
-        for test_name, test in iteritems(table):
+        for test_name, test in table.items():
             self.setUp()
             for key in test['keys_to_insert']:
                 self.d.insert(key)
@@ -61,7 +60,7 @@ class TestObservationCounter(unittest.TestCase):
     # keep a set of all feature_name, feature_val pairs for testing
     all_index_keys = set()
     for observation in observations:
-        for item in iteritems(observation):
+        for item in observation.items():
             all_index_keys.add(item)
 
     def setUp(self):
@@ -75,7 +74,7 @@ class TestObservationCounter(unittest.TestCase):
             'feature_b': 2,
             'feature_c': 2
         }
-        for feature_name, count in iteritems(self.oc.n_obs):
+        for feature_name, count in self.oc.n_obs.items():
             self.assertEqual(count, expected_counts[feature_name])
 
         # test index
@@ -103,10 +102,9 @@ class TestObservationCounter(unittest.TestCase):
                     ]
             }
         }
-        for feature, test in iteritems(table):
+        for feature, test in table.items():
             counts = self.oc.counts[feature]
-            expected = sorted(test['expected'])
-            self.assertListEqual(sorted(list(counts.items())), expected, feature)
+            self.assertCountEqual(counts.items(), test['expected'], feature)
 
         # test joint_counts
         expected_joint_counts = {
@@ -137,10 +135,9 @@ class TestObservationCounter(unittest.TestCase):
                 'expected': 0
             },
         }
-        for test_name, test in iteritems(table):
+        for test_name, test in table.items():
             count = self.oc.get_count(test['feature tuple'])
-            expected = test['expected']
-            self.assertEqual(count, expected, test_name)
+            self.assertEqual(count, test['expected'], test_name)
 
 
 class TestObservationCounterWithMissingData(unittest.TestCase):
@@ -156,7 +153,7 @@ class TestObservationCounterWithMissingData(unittest.TestCase):
     # keep a set of all feature_name, feature_val pairs for testing
     all_index_keys = set()
     for observation in observations:
-        for item in iteritems(observation):
+        for item in observation.items():
             if not cnt.isnan(cnt.get_feature_value(item)):
                 all_index_keys.add(item)
 
@@ -171,7 +168,7 @@ class TestObservationCounterWithMissingData(unittest.TestCase):
             'feature_b': 1,
             'feature_c': 1
         }
-        for feature_name, count in iteritems(self.oc.n_obs):
+        for feature_name, count in self.oc.n_obs.items():
             self.assertEqual(count, expected_counts[feature_name])
 
         # test index
@@ -201,10 +198,9 @@ class TestObservationCounterWithMissingData(unittest.TestCase):
                 'expected': []
             }
         }
-        for feature, test in iteritems(table):
+        for feature, test in table.items():
             counts = self.oc.counts.get(feature, {})
-            expected = sorted(test['expected'])
-            self.assertListEqual(sorted(list(counts.items())), expected, feature)
+            self.assertCountEqual(counts.items(), test['expected'], feature)
 
         # test joint_counts
         expected_joint_counts = {
@@ -250,7 +246,7 @@ class TestIsNaN(unittest.TestCase):
                 'expected': False
             },
         }
-        for test_name, test in iteritems(table):
+        for test_name, test in table.items():
             isnan_result = cnt.isnan(test['test'])
             self.assertEqual(isnan_result, test['expected'], test_name)
 
@@ -281,7 +277,7 @@ class TestGetMode(unittest.TestCase):
                 'expected': 2
             },
         }
-        for test_name, test in iteritems(table):
+        for test_name, test in table.items():
             mode = cnt.get_mode(test['counter'])
             self.assertEqual(mode, test['expected'], test_name)
 

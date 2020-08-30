@@ -1,18 +1,19 @@
 import unittest
+from typing import List
 
 import numpy as np
 from scipy.sparse import csr_matrix
-from six import iteritems
-from six.moves import zip
 
-from coupled_biased_random_walks.matrix import (dict_to_csr_matrix,
-                                                random_walk,
-                                                row_normalize_csr_matrix)
+from coupled_biased_random_walks.matrix import (
+    dict_to_csr_matrix,
+    random_walk,
+    row_normalize_csr_matrix,
+)
 
 np.random.seed(0)
 
 
-def construct_2x2_csr_matrix(data):
+def construct_2x2_csr_matrix(data: List[float]) -> csr_matrix:
     """
     Construct a 2x2 csr_matrix
     :param data: list of length 4 of data for csr matrix corresponding to idx position
@@ -21,17 +22,20 @@ def construct_2x2_csr_matrix(data):
     matrix_data = []
     matrix_idx = []
     for ix, datum in zip(idx, data):
-        if datum != 0:
-            matrix_data.append(datum)
-            matrix_idx.append(ix)
-    if matrix_data:
-        return csr_matrix((matrix_data, zip(*matrix_idx)), shape=(2, 2))
-    return csr_matrix(([], ([], [])), shape=(2, 2))
+        if datum == 0:
+            continue
+        matrix_data.append(datum)
+        matrix_idx.append(ix)
+    if not matrix_data:
+        return csr_matrix(([], ([], [])), shape=(2, 2))
+    return csr_matrix((matrix_data, zip(*matrix_idx)), shape=(2, 2))
 
 
-def csr_matrix_equality(c1, c2):
+def csr_matrix_equality(c1: csr_matrix, c2: csr_matrix) -> bool:
     """
-    Test 2 csr matrices for equality
+    Test two csr matrices for equality
+    :param c1: csr_matrix to compare
+    :param c2: csr_matrix to compare
     """
     if c1.shape != c2.shape:
         return False
@@ -85,12 +89,9 @@ class TestDictToCSRMatrix(unittest.TestCase):
             }
         }
 
-        for test_name, params in iteritems(table):
-            data_dict = params['data_dict']
-            shape = params['shape']
-            expected = params['expected']
-            result = dict_to_csr_matrix(data_dict, shape)
-            self.assertTrue(csr_matrix_equality(result, expected), test_name)
+        for test_name, test in table.items():
+            result = dict_to_csr_matrix(test['data_dict'], test['shape'])
+            self.assertTrue(csr_matrix_equality(result, test['expected']), test_name)
 
 
 class TestRowNormalizeCSRMatrix(unittest.TestCase):
@@ -128,13 +129,13 @@ class TestRowNormalizeCSRMatrix(unittest.TestCase):
             }
         }
 
-        for test_name, test in iteritems(valid_table):
+        for test_name, test in valid_table.items():
             matrix = construct_2x2_csr_matrix(test['data'])
             normalized = row_normalize_csr_matrix(matrix)
             row_sums = normalized.sum(axis=1)
             self.assertAlmostEqual(row_sums[0], test['expected_row_0'], 3, test_name)
             self.assertAlmostEqual(row_sums[1], test['expected_row_1'], 3, test_name)
 
-        for test_name, test in iteritems(invalid_table):
+        for test_name, test in invalid_table.items():
             with self.assertRaises(test['exception']):
                 _ = row_normalize_csr_matrix(test['input'])

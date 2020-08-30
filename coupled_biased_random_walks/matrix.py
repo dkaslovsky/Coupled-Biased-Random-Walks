@@ -1,14 +1,20 @@
-from __future__ import division
+from typing import Dict, Tuple, Union
 
 import numpy as np
 from scipy.sparse import csr_matrix
-from six.moves import range
+
+from coupled_biased_random_walks.types import obs_item_type
 
 
 EPS = 10e-8  # tolerance below which to consider a value as zero
 
 
-def random_walk(transition_matrix, alpha, err_tol, max_iter):
+def random_walk(
+    transition_matrix: csr_matrix,
+    alpha: float,
+    err_tol: float,
+    max_iter: int
+) -> np.ndarray:
     """
     Run random walk to compute stationary probabilities
     :param transition_matrix: scipy.sparse.csr_matrix defining the random walk
@@ -37,7 +43,10 @@ def random_walk(transition_matrix, alpha, err_tol, max_iter):
     return pi / pi_sum
 
 
-def dict_to_csr_matrix(data_dict, shape):
+def dict_to_csr_matrix(
+    data_dict: Dict[obs_item_type, float],
+    shape: Union[int, Tuple[int, int]],
+) -> csr_matrix:
     """
     Converts dict of index -> value to csr_matrix
     :param data_dict: dict mapping matrix index tuple to corresponding matrix value
@@ -48,13 +57,12 @@ def dict_to_csr_matrix(data_dict, shape):
 
     if isinstance(shape, int):
         shape = (shape, shape)
-    # csr_matrix cannot accept iterators so cast to lists for python 3
-    data = list(data_dict.values())
+    data = list(data_dict.values())  # csr_matrix cannot accept iterator for data
     idx = zip(*list(data_dict.keys()))
     return csr_matrix((data, idx), shape=shape)
 
 
-def row_normalize_csr_matrix(matrix):
+def row_normalize_csr_matrix(matrix: csr_matrix) -> csr_matrix:
     """
     Row normalize a csr matrix without mutating the input
     :param matrix: scipy.sparse.csr_matrix instance

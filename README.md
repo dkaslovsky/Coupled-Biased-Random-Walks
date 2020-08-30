@@ -3,9 +3,12 @@ Outlier detection for categorical data
 
 [![Build Status](https://travis-ci.org/dkaslovsky/Coupled-Biased-Random-Walks.svg?branch=master)](https://travis-ci.org/dkaslovsky/Coupled-Biased-Random-Walks)
 [![Coverage Status](https://coveralls.io/repos/github/dkaslovsky/Coupled-Biased-Random-Walks/badge.svg?branch=master)](https://coveralls.io/github/dkaslovsky/Coupled-Biased-Random-Walks?branch=master)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/Coupled-Biased-Random-Walks)
 
 ### Overview
-Python [2.7, 3.x] implementation of the Coupled Biased Random Walks (CBRW) outlier detection algorithm described by Pang, Cao, and Chen in https://www.ijcai.org/Proceedings/16/Papers/272.pdf.
+Python implementation of the Coupled Biased Random Walks (CBRW) outlier detection algorithm described by Pang, Cao, and Chen in https://www.ijcai.org/Proceedings/16/Papers/272.pdf.
+
+__NOTE__: Only Python>=3.7 is supported as of version 2.0.0.
 
 This implementation operates on Python dicts rather than Pandas DataFrames.  This has the advantage of allowing the model to be updated with new observations in a trivial manner and is more efficient in certain aspects.  However, these advantages come at the cost of iterating a (potentially large) dict of observed values more times than might otherwise be necessary using an underlying DataFrame implementation.
 
@@ -14,7 +17,7 @@ If one is working with data previously loaded into a DataFrame, simply use the r
 ### Installation
 This package is hosted on PyPI and can be installed via `pip`:
 ```
-$ pip install coupled_biased_random_walks
+$ pip install coupled-biased-random-walks
 ```
 To instead install from source:
 ```
@@ -26,7 +29,7 @@ $ python setup.py install
 ### Example
 Let's run the CBRW detection algorithm on the authors' example data set from the paper:
 
-<img src="./example_table.png" width="400">
+<img src="./img/example_table.png" width="400">
 
 This data is saved as a [CSV file](./data/CBRW_paper_example.csv) in this repository and is loaded into memory as a list of dicts by [example.py](./example.py).  Note that we drop the `Cheat?` column when loading the data, as this is essentially the target variable indicating the anomalous activity to be detected.  The detector is instantiated and observations are added as follows:
 ```

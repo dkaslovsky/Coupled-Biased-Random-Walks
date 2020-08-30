@@ -1,14 +1,9 @@
 from collections import Counter, defaultdict
+from collections.abc import Mapping
 from itertools import combinations, tee
+from typing import Any, Dict, Hashable, Iterable, Tuple
 
-from six import iteritems
-
-try:
-    # python 2
-    from collections import Mapping
-except ImportError:
-    # python 3
-    from collections.abc import Mapping
+from coupled_biased_random_walks.types import obs_item_type, observation_type
 
 
 class IncrementingDict(Mapping):
@@ -24,7 +19,7 @@ class IncrementingDict(Mapping):
         self._d = {}
         self._next_val = 0
 
-    def insert(self, key):
+    def insert(self, key: Hashable) -> None:
         """
         Inserts a (strictly new) key
         :param key: any hashable object to be used as a key
@@ -47,7 +42,7 @@ class IncrementingDict(Mapping):
         return self._d.__repr__()
 
 
-class ObservationCounter(object):
+class ObservationCounter:
 
     """
     Counts single and joint occurrences of key/value pairs in a dict with
@@ -69,18 +64,18 @@ class ObservationCounter(object):
         self._index = IncrementingDict()
 
     @property
-    def counts(self):
+    def counts(self) -> Dict[str, Counter]:
         return dict(self._counts)
 
     @property
-    def joint_counts(self):
+    def joint_counts(self) -> Dict[Tuple[obs_item_type, obs_item_type], int]:
         return dict(self._joint_counts)
 
     @property
-    def index(self):
+    def index(self) -> IncrementingDict:
         return self._index
 
-    def update(self, observation_iterable):
+    def update(self, observation_iterable: Iterable[observation_type]) -> None:
         """
         Update counts with new observation(s)
         :param observation_iterable: list of dicts
@@ -91,13 +86,13 @@ class ObservationCounter(object):
             # feature name with value NaN represents a missing feature in the
             # observation (e.g., a missing value is NaN-filled in a pandas DataFrame) so
             # we remove any such features from the observation to avoid including in counts
-            obs = {key: value for key, value in iteritems(observation) if not isnan(value)}
+            obs = {key: value for key, value in observation.items() if not isnan(value)}
             # create iterators of obs for updating counts
-            obs1, obs2 = tee(iteritems(obs), 2)
+            obs1, obs2 = tee(obs.items(), 2)
             self._update_counts(obs1)
             self._update_joint_counts(obs2)
 
-    def get_count(self, item):
+    def get_count(self, item: obs_item_type) -> int:
         """
         Getter to safely retrieve count from interal data structure of defaultdict(Counter)
         :param item: tuple of the form ('feature_name', 'feature_value')
@@ -111,7 +106,7 @@ class ObservationCounter(object):
             # meaning there is no count for the feature_name
             return 0
 
-    def _update_counts(self, observation):
+    def _update_counts(self, observation: obs_item_type) -> None:
         """
         Update single counts
         :param observation: iterable of tuples of the form ('feature_name', 'feature_value')
@@ -122,18 +117,18 @@ class ObservationCounter(object):
             self._index.insert(item)
             self.n_obs.update([feature_name])
 
-    def _update_joint_counts(self, observation):
+    def _update_joint_counts(self, observations: Iterable[obs_item_type]) -> None:
         """
         Update joint counts
         :param observation: iterable of tuples of the form ('feature_name', 'feature_value')
         """
-        pairs = combinations(sorted(observation), 2)
+        pairs = combinations(sorted(observations), 2)
         self._joint_counts.update(pairs)
 
 
 # Helper functions
 
-def get_feature_name(feature_tuple):
+def get_feature_name(feature_tuple: obs_item_type) -> str:
     """
     Helper function to return feature name from tuple representation
     :param feature_tuple: tuple of the form (feature_name, feature_value)
@@ -141,7 +136,7 @@ def get_feature_name(feature_tuple):
     return feature_tuple[0]
 
 
-def get_feature_value(feature_tuple):
+def get_feature_value(feature_tuple: obs_item_type) -> str:
     """
     Helper function to return feature value from tuple representation
     :param feature_tuple: tuple of the form (feature_name, feature_value)
@@ -149,7 +144,7 @@ def get_feature_value(feature_tuple):
     return feature_tuple[1]
 
 
-def get_mode(counter):
+def get_mode(counter: Counter) -> int:
     """
     Helper function to return the count of the most common
     element from an instance of Counter()
@@ -163,7 +158,7 @@ def get_mode(counter):
     return mode[0][1]
 
 
-def isnan(x):
+def isnan(x: Any) -> bool:
     """
     Return True if x is NaN where x can be of any type
     :param x: any object for which (in)equality can be checked
