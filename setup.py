@@ -10,7 +10,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='coupled_biased_random_walks',
-    version='1.1.0',
+    version='1.1.1',
     author='Daniel Kaslovsky',
     author_email='dkaslovsky@gmail.com',
     license='MIT',
