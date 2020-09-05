@@ -1,3 +1,6 @@
+## 2.1.0 / 2020-09-05
+* [Added] version is exposed as `coupled_biased_random_walks.__version__`
+
 ## 2.0.0 / 2020-08-30
 * [Added] type hints
 * [Changed] removed support for Python 2 and <3.7

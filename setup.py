@@ -1,16 +1,37 @@
+import os
 from setuptools import setup
 
 
-with open('README.md') as f:
+dir_name = os.path.dirname(__file__)
+
+readme_path = os.path.join(dir_name, 'README.md')
+with open(readme_path, 'r') as f:
     long_description = f.read()
 
-with open('requirements.txt') as f:
+requirements_path = os.path.join(dir_name, 'requirements.txt')
+with open(requirements_path, 'r') as f:
     requirements = f.read().splitlines()
+
+version_path = os.path.join('coupled_biased_random_walks', '_version.py')
+with open(version_path, 'r') as f:
+    version = f.read()
+
+
+def parse_version(version_str: str) -> str:
+    """
+    Parse the package version
+    :param version_str: string of the form "__version__ = 'x.y.z'"
+    """
+    try:
+        version = version_str.split('=')[1]
+    except IndexError:
+        return 'unknown'
+    return version.strip(' \'\"\n')
 
 
 setup(
     name='coupled_biased_random_walks',
-    version='2.0.0',
+    version=parse_version(version),
     author='Daniel Kaslovsky',
     author_email='dkaslovsky@gmail.com',
     license='MIT',
