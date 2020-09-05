@@ -1,4 +1,5 @@
 import os
+import re
 from setuptools import setup
 
 
@@ -22,11 +23,16 @@ def parse_version(version_str: str) -> str:
     Parse the package version
     :param version_str: string of the form "__version__ = 'x.y.z'"
     """
+    version_str = version_str.strip('\n')
     try:
         version = version_str.split('=')[1]
     except IndexError:
-        return 'unknown'
-    return version.strip(' \'\"\n')
+        raise RuntimeError(f'cannot parse version from [{version_str}]')
+    version = version.strip(' \'\"')
+    # validate version
+    if not re.match(r'^(\d+).(\d+).(\d+)$', version):
+        raise RuntimeError(f'parsed invalid version [{version}] from [{version_str}]')
+    return version
 
 
 setup(
