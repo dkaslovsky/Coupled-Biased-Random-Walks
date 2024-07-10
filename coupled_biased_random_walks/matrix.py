@@ -57,8 +57,9 @@ def dict_to_csr_matrix(
 
     if isinstance(shape, int):
         shape = (shape, shape)
-    data = list(data_dict.values())  # csr_matrix cannot accept iterator for data
-    idx = zip(*list(data_dict.keys()))
+    # csr_matrix cannot accept iterator inputs
+    data = list(data_dict.values())
+    idx = list(zip(*list(data_dict.keys())))
     return csr_matrix((data, idx), shape=shape)
 
 

@@ -28,7 +28,7 @@ def construct_2x2_csr_matrix(data: List[float]) -> csr_matrix:
         matrix_idx.append(ix)
     if not matrix_data:
         return csr_matrix(([], ([], [])), shape=(2, 2))
-    return csr_matrix((matrix_data, zip(*matrix_idx)), shape=(2, 2))
+    return csr_matrix((matrix_data, list(zip(*matrix_idx))), shape=(2, 2))
 
 
 def csr_matrix_equality(c1: csr_matrix, c2: csr_matrix) -> bool:
