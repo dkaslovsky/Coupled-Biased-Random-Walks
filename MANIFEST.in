@@ -1,0 +1,7 @@
+include *.md
+include *.py
+include *.txt
+recursive-include data *.csv
+recursive-include data *.py
+recursive-include img *.png
+recursive-include tests *.py
