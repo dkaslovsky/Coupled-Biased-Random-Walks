@@ -1,3 +1,6 @@
+## 2.1.1 / 2024-07-10
+* [Changed] updated dependencies to latest versions
+
 ## 2.1.0 / 2020-09-05
 * [Added] version is exposed as `coupled_biased_random_walks.__version__`
 
